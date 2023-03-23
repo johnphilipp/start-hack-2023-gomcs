@@ -67,10 +67,22 @@ async def aggregate_by_activity_type(userid: str) -> JSONResponse:
         estimations = {}
 
         if "IN_PASSENGER_VEHICLE" in distances_by_activity_type:
-            estimations["car"] = co2_api.estimate_car_emissions(distances_by_activity_type["IN_PASSENGER_VEHICLE"])
+            car = distances_by_activity_type["IN_PASSENGER_VEHICLE"]
+            car = car + distances_by_activity_type["IN_VEHICLE"]
+
+            total = co2_api.estimate_car_emissions(distances_by_activity_type["IN_PASSENGER_VEHICLE"])
+
+            if "MOTORCYCLING" in distances_by_activity_type:
+                total = total + co2_api.estimate_motorcycle_emissions(distances_by_activity_type["MOTORCYCLING"])
+
+            estimations["car"] = total
 
         if "IN_TRAIN" in distances_by_activity_type:
-            estimations["train"] = co2_api.estimate_train_emissions(distances_by_activity_type["IN_TRAIN"])
+            total = distances_by_activity_type["IN_TRAIN"]
+            total = total + distances_by_activity_type["IN_SUBWAY"]
+            total = total + distances_by_activity_type["IN_TRAM"]
+
+            estimations["train"] = co2_api.estimate_train_emissions(total)
 
         if "IN_FERRY" in distances_by_activity_type:
             estimations["ferry"] = co2_api.estimate_ferry_emissions(distances_by_activity_type["IN_FERRY"])
@@ -80,6 +92,15 @@ async def aggregate_by_activity_type(userid: str) -> JSONResponse:
 
         if "FLYING" in distances_by_activity_type:
             estimations["plane"] = co2_api.estimate_plane_emissions(distances_by_activity_type["FLYING"])
+
+        if "WALKING" in distances_by_activity_type:
+            estimations["foot"] = 0
+
+        if "ON_BICYCLE" in distances_by_activity_type:
+            estimations["bike"] = 0
+
+        if "IN_BUS" in distances_by_activity_type:
+            estimations["bike"] = 0
 
         return JSONResponse(content=estimations)
     except PyMongoError:
