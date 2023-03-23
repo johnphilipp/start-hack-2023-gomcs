@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import Spinner from "~/components/Spinner";
 import { NextPage } from "next";
 import UploadData from "~/components/UploadData";
+import Analytics from "~/components/Analytics";
 
 const DashboardPage: NextPage = () => {
   const { data: sessionData, status } = useSession();
@@ -13,7 +14,7 @@ const DashboardPage: NextPage = () => {
 
   const [buttonClicked, setButtonClicked] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [userHasDataInDb, setUserHasDataInDb] = useState(false);
+  const [userHasDataInDb, setUserHasDataInDb] = useState(true);
 
   // MOCKED:
 
@@ -107,11 +108,7 @@ const DashboardPage: NextPage = () => {
               {loading ? "Loading..." : "Check for data"}
             </button>
 
-            {buttonClicked && userHasDataInDb && (
-              <div className="bg-white/10 p-20 text-center text-xl text-white">
-                Data -- Analytics
-              </div>
-            )}
+            {buttonClicked && userHasDataInDb && <Analytics />}
 
             {buttonClicked && !userHasDataInDb && <UploadData />}
 
@@ -123,21 +120,3 @@ const DashboardPage: NextPage = () => {
   );
 };
 export default DashboardPage;
-
-const NoData = () => {
-  // display message to user that they have no data
-  // button to reroute to uploadData
-  return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <h1 className="text-2xl font-bold tracking-tight text-white sm:text-[2rem]">
-        No data found
-      </h1>
-      <p className="text-2xl font-bold tracking-tight text-white sm:text-[2rem]">
-        Please upload your data
-      </p>
-      <button className="rounded-md bg-[#2e026d] px-4 py-2 text-white">
-        Upload Data
-      </button>
-    </div>
-  );
-};
