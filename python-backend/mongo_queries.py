@@ -57,6 +57,32 @@ def get_drives_below_threshold(user_id: str, threshold: int):
 
     return drives_below_threshold
 
+def get_distance_by_month(user_id: str):
+    mongo_timeline_collection = mongo_db[user_id]
+    # convert start_time to datetime object, then extract month, then group by month and activity_type and sum distance
+    aggregation_pipeline = [
+        { "$project": { 
+            "month": { "$month": { "$toDate": "$start_time" }},
+            "distance": "$distance",
+            "activity_type": "$activity_type"
+        }},
+        { "$group": { 
+            "_id": { "month": "$month", "activity_type": "$activity_type" },
+            "totalDistance": { "$sum": "$distance" }
+        }}
+    ]
+
+    results = mongo_timeline_collection.aggregate(aggregation_pipeline)
+    
+    trends_by_month = []
+    for doc in results:
+        # create dict
+        month = doc["_id"]["month"]
+        activity_type = doc["_id"]["activity_type"]
+        total_distance = doc["totalDistance"]
+        trends_by_month.append({"month": month, "activity_type": activity_type, "totalDistance": total_distance})
+    return trends_by_month
+
 
 def get_cached_data(user_id: str):
     mongo_timeline_collection = mongo_db[user_id]

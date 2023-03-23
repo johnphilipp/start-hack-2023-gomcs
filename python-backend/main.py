@@ -85,6 +85,13 @@ async def aggregate_by_activity_type(userid: str) -> JSONResponse:
     except PyMongoError:
         return JSONResponse(status_code=500, content=None)
 
+@app.get("/stats/byMonth/{userid}")
+async def aggregate_by_activity_type(userid: str) -> JSONResponse:
+    result = mongo_queries.get_distance_by_month(userid)
+
+    return JSONResponse(content=result)
+
+
 
 @app.get("/loadTimeline/{user_id}")
 async def get_timeline(user_id: str) -> JSONResponse:
