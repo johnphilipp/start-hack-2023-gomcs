@@ -11,42 +11,32 @@ const UploadData: React.FC = () => {
 
   const router = useRouter();
 
-  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
-  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<File>();
   const [success, setSuccess] = useState<boolean>(false);
 
   const handleFileUpload = useCallback((files: FileList) => {
-    Array.from(files).forEach((file) => {
-      // console.log("DEBUG [UploadData]: Accepted file: ", file);
+    const file = files[0];
+    if (!file) return;
 
-      setUploadedFileName(file.name);
-
-      const reader = new FileReader();
-      reader.onload = () => {
-        const fileContent = reader.result as string;
-        // console.log("DEBUG [UploadData]: File content: ", fileContent);
-
-        setUploadedFile(fileContent);
-      };
-      reader.readAsText(file);
-    });
+    setUploadedFile(file);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles: FileWithPath[]) =>
       handleFileUpload(acceptedFiles as unknown as FileList),
     accept: {
-      "application/json": [".json"],
+      "application/zip": [".zip"],
     },
+    maxFiles: 1,
   });
 
   const handleUploadData = async () => {
     if (sessionData && uploadedFile) {
       try {
-        const response = await uploadDataHelper(
-          sessionData.user.id,
-          uploadedFile
-        );
+        const formData = new FormData();
+        formData.append("file", uploadedFile, uploadedFile.name);
+
+        const response = await uploadDataHelper(sessionData.user.id, formData);
 
         if (response.ok) {
           setSuccess(true);
@@ -75,12 +65,12 @@ const UploadData: React.FC = () => {
             <div className="flex text-sm text-gray-600">
               <p className="pl-2">or drag and drop</p>
             </div>
-            <p className="text-xs text-gray-500">JSON</p>
+            <p className="text-xs text-gray-500">ZIP</p>
           </div>
         </div>
       </div>
-      {uploadedFileName && (
-        <p className="text-white">Uploaded file: {uploadedFileName}</p>
+      {uploadedFile?.name && (
+        <p className="text-white">Uploaded file: {uploadedFile.name}</p>
       )}
       {uploadedFile && sessionData && (
         <>
@@ -104,14 +94,13 @@ const UploadData: React.FC = () => {
 
 export default UploadData;
 
-const uploadDataHelper = async (userId: string, timeline: string) => {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/uploadJsonTimeline`;
+const uploadDataHelper = async (userId: string, formData: FormData) => {
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/upload_zip/${userId}`;
   // const url = "http://192.168.43.228:8080/uploadJsonTimeline";
 
   const requestOptions = {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, timeline }),
+    body: formData,
   };
 
   const response = await fetch(url, requestOptions);
