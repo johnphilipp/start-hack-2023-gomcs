@@ -5,6 +5,8 @@ from pymongo import MongoClient, ReturnDocument
 from pymongo.collection import Collection
 from pymongo.errors import PyMongoError
 import json
+import mongo_queries
+import co2_api
 
 app = FastAPI()
 mongo_client = MongoClient("mongodb://root:8nP7s0a@localhost:27017/")
@@ -32,25 +34,49 @@ class Timeline:
 @app.get("/stats/{userid}")
 async def aggregate_by_activity_type(userid: str) -> JSONResponse:
     try:
-        aggregation_pipeline = [
-            {"$group": {"_id": "$activityType", "totalDistance": {"$sum": "$distance"}}}
-        ]
-        mongo_stats_collection = mongo_db[userid]
-
-        results = mongo_stats_collection.aggregate(aggregation_pipeline)
-
-        print(results)
-
-        distances_by_activity_type: Dict[str, int] = {}
-        for doc in results:
-            print(doc)
-            activity_type = doc["_id"]
-            total_distance = doc["totalDistance"]
-            distances_by_activity_type[activity_type] = total_distance
+        distances_by_activity_type = mongo_queries.get_cached_plain_stats(userid)
+        if len(distances_by_activity_type) == 0:
+            return JSONResponse(status_code=204, content=None)
 
         return JSONResponse(content=distances_by_activity_type)
     except PyMongoError:
         return JSONResponse(status_code=500, content=None)
+
+
+@app.get("/stats/co2/{userid}")
+async def aggregate_by_activity_type(userid: str) -> JSONResponse:
+    try:
+        distances_by_activity_type = mongo_queries.get_cached_plain_stats(userid)
+        if len(distances_by_activity_type) == 0:
+            return JSONResponse(status_code=204, content=None)
+
+        estimations = {}
+
+        if "IN_PASSENGER_VEHICLE" in distances_by_activity_type:
+            estimations["car"] = co2_api.estimate_car_emissions(distances_by_activity_type["IN_PASSENGER_VEHICLE"])
+
+        if "IN_TRAIN" in distances_by_activity_type:
+            estimations["train"] = co2_api.estimate_train_emissions(distances_by_activity_type["IN_TRAIN"])
+
+        if "IN_FERRY" in distances_by_activity_type:
+            estimations["ferry"] = co2_api.estimate_ferry_emissions(distances_by_activity_type["IN_FERRY"])
+
+        if "FLYING" in distances_by_activity_type:
+            estimations["plane"] = co2_api.estimate_plane_emissions(distances_by_activity_type["FLYING"])
+
+        return JSONResponse(content=estimations)
+    except PyMongoError:
+        return JSONResponse(status_code=500, content=None)
+
+
+@app.get("/loadTimeline/{user_id}")
+async def get_timeline(user_id: str) -> JSONResponse:
+    timeline = mongo_queries.get_cached_data(user_id)
+
+    if not timeline:
+        return JSONResponse(status_code=204, content=None)
+
+    return JSONResponse(content=timeline)
 
 
 @app.post("/uploadJsonTimeline")
@@ -97,27 +123,6 @@ async def add_timeline(request: Request) -> JSONResponse:
         return JSONResponse(status_code=500, content="Failed to add timeline!")
 
 
-@app.get("/loadTimeline/{user_id}")
-async def get_timeline(user_id: str) -> JSONResponse:
-    mongo_timeline_collection = mongo_db[user_id]
-
-    timeline = []
-    for doc in mongo_timeline_collection.find():
-        activity_type = doc["activityType"]
-        distance = doc["distance"]
-        confidence = doc["confidence"]
-        start_time = doc["startTime"]
-        end_time = doc["endTime"]
-        activity_segment = ActivitySegment(activity_type, distance, confidence, start_time, end_time)
-        timeline.append(activity_segment.__dict__)
-
-    if not timeline:
-        return JSONResponse(status_code=204, content=None)
-
-    return JSONResponse(content=timeline)
-
-
-
 @app.get("/")
 async def root():
     return {"message": "Hello, World!"}
@@ -125,4 +130,5 @@ async def root():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)
