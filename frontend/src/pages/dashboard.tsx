@@ -116,11 +116,11 @@ const DashboardPage: NextPage = () => {
           <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[2rem]">
             {" "}
           </h2>
+          <TransportStats />
           <div className="flex flex-row items-center justify-center items-stretch gap-4">
             <CO2Piechart />
             <DistanceStats total={distanceData.total} diff={distanceData.diff} data={distanceData.data}/>
           </div>
-          <TransportStats />
 
           <div className="w-full border-t border-gray-500" />
 

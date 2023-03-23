@@ -1,5 +1,6 @@
 import { createStyles, Progress, Box, Text, Group, Paper, SimpleGrid, rem } from '@mantine/core';
 import {TbArrowDown, TbArrowUp, TbDeviceAnalytics} from 'react-icons/tb';
+import React from "react";
 
 const useStyles = createStyles((theme) => ({
     progressLabel: {
@@ -66,6 +67,11 @@ export function DistanceStats({ total, diff, data }: StatsSegmentsProps) {
 
     return (
         <Paper withBorder p="md" radius="md">
+            <Group align="flex-start" spacing="xs">
+                <Text fz="xl" fw={700}>
+                    Kilometers travelled in 2023
+                </Text>
+            </Group>
             <Group position="apart">
                 <Group align="flex-end" spacing="xs">
                     <Text fz="xl" fw={700}>

@@ -9,6 +9,7 @@ import {
     TbChevronDown,
     TbChevronUp, TbCar, TbShip, TbBus
 } from "react-icons/tb";
+import theme from "tailwindcss/defaultTheme";
 
 const data = [
     {name: 'Walk', value: 400, icon: TbWalk},
@@ -32,7 +33,7 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
 
     return (
         <g>
-            <payload.icon x={cx - 16} y={cy - 16} size={32} />
+            <payload.icon color={'#2f9e44'} x={cx - 32} y={cy - 32} size={64} />
             <Sector
                 cx={cx}
                 cy={cy}
@@ -83,6 +84,11 @@ export default class CO2Piechart extends PureComponent {
                         CO2 Emissions in 2023
                     </Text>
                 </Group>
+                <Group align="flex-start">
+                    <Text color="#868e96" fz="lg" fw={700}>
+                        Total 4000kg
+                    </Text>
+                </Group>
                 <PieChart width={400} height={300} >
                     <Pie
                         activeIndex={this.state.activeIndex}
@@ -92,7 +98,7 @@ export default class CO2Piechart extends PureComponent {
                         cy="50%"
                         innerRadius={60}
                         outerRadius={80}
-                        fill="#1c7ed6"
+                        fill="#2f9e44"
                         dataKey="value"
                         onMouseEnter={this.onPieEnter}
                     />
