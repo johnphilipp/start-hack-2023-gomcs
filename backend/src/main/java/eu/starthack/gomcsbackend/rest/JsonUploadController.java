@@ -28,12 +28,16 @@ public class JsonUploadController {
     @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/uploadJsonTimeline")
     public ResponseEntity<String> addTimeline(@RequestBody Map<String, Object> request) {
+        System.out.println("Request");
         try {
-            String userId = (String) request.get("userid");
+            String userId = (String) request.get("userId");
             //JSONObject timelineJson = new JSONObject((Map) );
             Document document = Document.parse((String) request.get("timeline"));
-            document.put("_id", userId);
-            mongoTemplate.save(document, "timeline");
+            Document bigDocument = new Document();
+            bigDocument.append("userId", userId);
+            bigDocument.append("timeline", document);
+
+            mongoTemplate.save(bigDocument, "timeline");
             return ResponseEntity.status(HttpStatus.CREATED).body("Timeline added successfully!");
         } catch (JSONException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid JSON format!");
