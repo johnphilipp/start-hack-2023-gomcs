@@ -61,16 +61,8 @@ const UploadData: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-center text-2xl text-white">
-        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-      </p>
-      <button
-        className="mb-8 rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        onClick={sessionData ? () => void signOut() : () => void signIn()}
-      >
-        Log out
-      </button>
+    <div className="flex flex-col items-center justify-center gap-4 text-white">
+      <h2 className="mb-2 text-xl font-bold">Upload Data</h2>
       <div
         {...getRootProps()}
         className={`mt-2 sm:col-span-2 sm:mt-0 ${
@@ -91,15 +83,17 @@ const UploadData: React.FC = () => {
         <p className="text-white">Uploaded file: {uploadedFileName}</p>
       )}
       {uploadedFile && sessionData && (
-        <button
-          type="button"
-          className="inline-flex items-center gap-x-1.5 rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-          onClick={() => handleUploadData()}
-        >
-          <FiUpload className="-ml-0.5 h-5 w-5" aria-hidden="true" />
-          Upload Data
-          {/* Prev. called: "Populate Dashboard" -- I think this sounded nicer */}
-        </button>
+        <>
+          <button
+            type="button"
+            className="inline-flex items-center gap-x-1.5 rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+            onClick={() => handleUploadData()}
+          >
+            <FiUpload className="-ml-0.5 h-5 w-5" aria-hidden="true" />
+            Upload Data
+            {/* Prev. called: "Populate Dashboard" -- I think this sounded nicer */}
+          </button>
+        </>
       )}
       {success && (
         <p className="text-green-500">Data uploaded successfully!</p> // conditionally render success message

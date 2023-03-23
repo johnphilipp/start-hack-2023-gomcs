@@ -4,9 +4,8 @@ import Spinner from "~/components/Spinner";
 import { NextPage } from "next";
 import Header from "~/components/Header";
 import Dashboard from "~/components/Dashboard";
-import UploadData from "~/components/UploadData";
 
-const UploadDataPage: NextPage = () => {
+const FriendComparePage: NextPage = () => {
   const { data: sessionData, status } = useSession();
 
   const router = useRouter();
@@ -28,11 +27,11 @@ const UploadDataPage: NextPage = () => {
     <>
       <Header />
       <div className="bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-        <main className="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center p-6 lg:px-8">
-          <UploadData />
+        <main className="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center p-6 text-white lg:px-8">
+          Friend Compare :)
         </main>
       </div>
     </>
   );
 };
-export default UploadDataPage;
+export default FriendComparePage;
