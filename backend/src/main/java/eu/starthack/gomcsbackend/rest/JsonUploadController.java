@@ -64,12 +64,7 @@ public class JsonUploadController {
                     // get end time
                     String endTime = duration.getString("endTimestamp");
                     // create activitySegment object
-                    ActivitySegment activitySegmentObject = new ActivitySegment();
-                    activitySegmentObject.setActivityType(activityType);
-                    activitySegmentObject.setDistance(distance);
-                    activitySegmentObject.setConfidence(confidence);
-                    activitySegmentObject.setStartTime(startTime);
-                    activitySegmentObject.setEndTime(endTime);
+                    ActivitySegment activitySegmentObject = new ActivitySegment(activityType, distance, confidence, startTime, endTime);
                     // log activity segment
                     System.out.println("Activity segment " + activitySegmentObject.getActivityType() + " " + activitySegmentObject.getDistance() + " " + activitySegmentObject.getConfidence() + " " + activitySegmentObject.getStartTime() + " " + activitySegmentObject.getEndTime());
                     // add activity segment to timeline

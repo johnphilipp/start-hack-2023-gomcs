@@ -46,4 +46,13 @@ public class ActivitySegment {
     public void setEndTime(String endTime) {
         this.endTime = endTime;
     }
+
+    // constructor with all fields
+    public ActivitySegment(String activityType, int distance, String confidence, String startTime, String endTime) {
+        this.activityType = activityType;
+        this.distance = distance;
+        this.confidence = confidence;
+        this.startTime = startTime;
+        this.endTime = endTime;
+    }
 }
