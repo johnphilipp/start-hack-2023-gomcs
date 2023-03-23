@@ -183,9 +183,9 @@ def store_data(user_id: str, json_data):
 
                     mongo_timeline_collection.insert_one(activity_segment_object.__dict__)
             except KeyError:
-                print("KeyError")
+                pass
     except KeyError:
-        print("KeyError")
+        pass
 
 
 def delete_data(user_id: str):
