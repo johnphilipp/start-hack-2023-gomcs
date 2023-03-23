@@ -2,6 +2,8 @@ package eu.starthack.gomcsbackend.repository;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document(collection = "my_collection")
+@Document(collection = "timeline")
 public class TimelineDocument {
+   
+
 }

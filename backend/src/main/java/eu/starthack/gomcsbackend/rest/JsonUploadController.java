@@ -2,6 +2,8 @@ package eu.starthack.gomcsbackend.rest;
 
 
 import org.bson.Document;
+import org.bson.json.JsonObject;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -13,7 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import org.springframework.web.bind.annotation.RestController;
 
-
+import eu.starthack.gomcsbackend.domain.ActivitySegment;
+import eu.starthack.gomcsbackend.domain.Timeline;
 
 import java.util.Map;
 
@@ -37,9 +40,48 @@ public class JsonUploadController {
             bigDocument.append("userId", userId);
             bigDocument.append("timeline", document);
 
+            // create timeline object with user id and timeline
+            Timeline timeline = new Timeline(userId);
+            // loop through timeline objects, identify activitySegment and add to timeline
+            JSONObject timelineJson = new JSONObject(document.toJson());
+            JSONArray timelineObjectsJsonArray = timelineJson.getJSONArray("timelineObjects");
+            // loop through each object in timeline
+            for (int i = 0; i < timelineObjectsJsonArray.length(); i++) {
+                JSONObject timelineObject = timelineObjectsJsonArray.getJSONObject(i);
+                // check if current object is an activitySegment
+                if (!timelineObject.isNull("activitySegment")) {
+                    // get activitySegment object
+                    JSONObject activitySegment = timelineObject.getJSONObject("activitySegment");
+                    // get activity type
+                    String activityType = activitySegment.getString("activityType");
+                    // get distance
+                    int distance = activitySegment.getInt("distance");
+                    // get confidence
+                    String confidence = activitySegment.getString("confidence");
+                    // get start time
+                    JSONObject duration = activitySegment.getJSONObject("duration");
+                    String startTime = duration.getString("startTimestamp");
+                    // get end time
+                    String endTime = duration.getString("endTimestamp");
+                    // create activitySegment object
+                    ActivitySegment activitySegmentObject = new ActivitySegment();
+                    activitySegmentObject.setActivityType(activityType);
+                    activitySegmentObject.setDistance(distance);
+                    activitySegmentObject.setConfidence(confidence);
+                    activitySegmentObject.setStartTime(startTime);
+                    activitySegmentObject.setEndTime(endTime);
+                    // log activity segment
+                    System.out.println("Activity segment " + activitySegmentObject.getActivityType() + " " + activitySegmentObject.getDistance() + " " + activitySegmentObject.getConfidence() + " " + activitySegmentObject.getStartTime() + " " + activitySegmentObject.getEndTime());
+                    // add activity segment to timeline
+                    timeline.addActivitySegment(activitySegmentObject);
+                }
+            }
+            
+            
             mongoTemplate.save(bigDocument, "timeline");
             return ResponseEntity.status(HttpStatus.CREATED).body("Timeline added successfully!");
         } catch (JSONException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid JSON format!");
         } catch (Exception e) {
             e.printStackTrace();
