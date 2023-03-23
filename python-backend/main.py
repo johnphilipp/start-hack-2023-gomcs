@@ -60,49 +60,49 @@ async def aggregate_by_activity_type(userid: str, start_time=None, end_time=None
 @app.get("/stats/co2/{userid}")
 async def aggregate_by_activity_type(userid: str) -> JSONResponse:
     try:
-        distances_by_activity_type = mongo_queries.get_cached_plain_stats(userid)
+        distances_by_activity_type = mongo_queries.get_distance_by_year(userid)
+
+
         if len(distances_by_activity_type) == 0:
             return JSONResponse(status_code=204, content=None)
 
         estimations = {}
 
-        if "IN_PASSENGER_VEHICLE" in distances_by_activity_type:
-            car = distances_by_activity_type["IN_PASSENGER_VEHICLE"]
+        for year in distances_by_activity_type:
+            if "IN_PASSENGER_VEHICLE" in distances_by_activity_type:
+                car = distances_by_activity_type["IN_PASSENGER_VEHICLE"]
 
-            if "IN_VEHICLE" in distances_by_activity_type:
-                car = car + distances_by_activity_type["IN_VEHICLE"]
+                if "IN_VEHICLE" in distances_by_activity_type:
+                    car = car + distances_by_activity_type["IN_VEHICLE"]
 
-            total = co2_api.estimate_car_emissions(car)
+                total = co2_api.estimate_car_emissions(car)
 
-            if "MOTORCYCLING" in distances_by_activity_type:
-                total = mongo_queries.merge_co2_documents(total, co2_api.estimate_motorcycle_emissions(distances_by_activity_type["MOTORCYCLING"]))
+                if "MOTORCYCLING" in distances_by_activity_type:
+                    total = mongo_queries.merge_co2_documents(total, co2_api.estimate_motorcycle_emissions(distances_by_activity_type["MOTORCYCLING"]))
 
-            estimations["car"] = total
+                estimations["IN_PASSENGER_VEHICLE"] = total
 
-        if "IN_TRAIN" in distances_by_activity_type:
-            total = distances_by_activity_type["IN_TRAIN"]
-            total = total + distances_by_activity_type["IN_SUBWAY"]
-            total = total + distances_by_activity_type["IN_TRAM"]
+            if "IN_TRAIN" in distances_by_activity_type:
+                total = distances_by_activity_type["IN_TRAIN"]
+                total = total + distances_by_activity_type["IN_SUBWAY"]
+                total = total + distances_by_activity_type["IN_TRAM"]
 
-            estimations["train"] = co2_api.estimate_train_emissions(total)
+                estimations["IN_TRAIN"] = co2_api.estimate_train_emissions(total)
 
-        if "IN_FERRY" in distances_by_activity_type:
-            estimations["ferry"] = co2_api.estimate_ferry_emissions(distances_by_activity_type["IN_FERRY"])
+            if "IN_FERRY" in distances_by_activity_type:
+                estimations["IN_FERRY"] = co2_api.estimate_ferry_emissions(distances_by_activity_type["IN_FERRY"])
 
-        if "FLYING" in distances_by_activity_type:
-            estimations["plane"] = co2_api.estimate_plane_emissions(distances_by_activity_type["FLYING"])
+            if "FLYING" in distances_by_activity_type:
+                estimations["FLYING"] = co2_api.estimate_plane_emissions(distances_by_activity_type["FLYING"])
 
-        if "FLYING" in distances_by_activity_type:
-            estimations["plane"] = co2_api.estimate_plane_emissions(distances_by_activity_type["FLYING"])
+            if "WALKING" in distances_by_activity_type:
+                estimations["WALKING"] = 0
 
-        if "WALKING" in distances_by_activity_type:
-            estimations["foot"] = 0
+            if "ON_BICYCLE" in distances_by_activity_type:
+                estimations["ON_BICYCLE"] = 0
 
-        if "ON_BICYCLE" in distances_by_activity_type:
-            estimations["bike"] = 0
-
-        if "IN_BUS" in distances_by_activity_type:
-            estimations["bike"] = 0
+            if "IN_BUS" in distances_by_activity_type:
+                estimations["IN_BUS"] = 0
 
         return JSONResponse(content=estimations)
     except PyMongoError:
@@ -145,6 +145,16 @@ async def get_short_drives(user_id: str) -> JSONResponse:
         return JSONResponse(status_code=204, content=None)
 
     return JSONResponse(content=short_drives)
+
+
+@app.get("/stats/all/{user_id}")
+async def get_short_drives(user_id: str) -> JSONResponse:
+
+    response_data = mongo_queries.get_distance_by_year(user_id)
+
+    print(response_data)
+
+    return JSONResponse(content=response_data)
 
 
 @app.post("/upload_zip/{user_id}")

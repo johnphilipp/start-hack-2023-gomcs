@@ -100,13 +100,21 @@ def get_distance_by_year(user_id: str):
 
     results = mongo_timeline_collection.aggregate(aggregation_pipeline)
     
-    trends_by_year = []
+    trends_by_year = {}
     for doc in results:
-        # create dict
+
+        print(doc)
         year = doc["_id"]["year"]
-        activity_type = doc["_id"]["activity_type"]
-        total_distance = doc["totalDistance"]
-        trends_by_year.append({"year": year, "activity_type": activity_type, "totalDistance": total_distance})
+        if year not in trends_by_year:
+            trends_by_year[year] = {}
+            activities = []
+        else:
+            activities = trends_by_year[year]
+
+        entry = {"distance": doc["totalDistance"], "co2": 20}
+
+        trends_by_year[year][doc["_id"]["activity_type"]] = entry
+
     return trends_by_year
 
 def get_distance_by_weekday(user_id: str):
