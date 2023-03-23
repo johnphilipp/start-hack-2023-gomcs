@@ -7,6 +7,8 @@ import { NextPage } from "next";
 import UploadData from "~/components/UploadData";
 import Analytics from "~/components/Analytics";
 import {TransportStats} from "~/components/TransportStats";
+import {DistanceStats, StatsSegmentsProps} from "~/components/DistanceStats";
+import CO2Piechart from "~/components/CO2Piechart";
 
 const DashboardPage: NextPage = () => {
   const { data: sessionData, status } = useSession();
@@ -60,6 +62,44 @@ const DashboardPage: NextPage = () => {
     return null;
   }
 
+  // TODO: change distance stats
+  const distanceData: StatsSegmentsProps = {
+    total: 5000,
+    diff: 30,
+    data: [
+      {
+        label: 'Airplane',
+        count: 5000 * 0.1,
+        part: 10,
+        color: '#d9480f'
+      },
+      {
+        label: 'Car',
+        count: 5000 * 0.4,
+        part: 40,
+        color: '#e8590c'
+      },
+      {
+        label: 'Train',
+        count: 5000 * 0.3,
+        part: 20,
+        color: '#f08c00'
+      },
+      {
+        label: 'Ferry',
+        count: 5000 * 0.1,
+        part: 10,
+        color: '#fcc419'
+      },
+      {
+        label: 'Bike',
+        count: 5000 * 0.2,
+        part: 20,
+        color: '#2f9e44'
+      }
+    ]
+  }
+
   return (
     <>
       <Head>
@@ -75,8 +115,12 @@ const DashboardPage: NextPage = () => {
 
           <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[2rem]">
             {" "}
-            <TransportStats />
           </h2>
+          <div className="flex flex-row items-center justify-center items-stretch gap-4">
+            <CO2Piechart />
+            <DistanceStats total={distanceData.total} diff={distanceData.diff} data={distanceData.data}/>
+          </div>
+          <TransportStats />
 
           <div className="w-full border-t border-gray-500" />
 
