@@ -100,12 +100,14 @@ async def upload_zipfile(user_id: str, file: UploadFile = File(...)):
     # Read the uploaded file into memory
     content = await file.read()
 
+    mongo_queries.delete_data(user_id)
     # Unpack the ZIP file into memory
     with zipfile.ZipFile(io.BytesIO(content)) as zip:
         # Iterate over all files in the archive
         for filename in zip.namelist():
             # Check if the file is a JSON file matching the pattern
-            if re.match(r"^\d{4}_[A-Z]+\.json$", filename):
+            print(filename)
+            if filename.endswith(".json"):
                 # Extract the JSON file from the archive and read its contents
                 with zip.open(filename) as json_file:
                     json_str = json_file.read().decode("utf-8")

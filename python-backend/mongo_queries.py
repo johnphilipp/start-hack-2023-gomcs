@@ -85,3 +85,8 @@ def store_data(user_id: str, json_data):
 
             mongo_timeline_collection.insert_one(activity_segment_object.__dict__)
 
+
+def delete_data(user_id: str):
+    mongo_timeline_collection = mongo_db[user_id]
+    mongo_timeline_collection.drop()
+
