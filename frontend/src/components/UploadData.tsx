@@ -6,11 +6,8 @@ import { useDropzone, FileWithPath } from "react-dropzone";
 import { BsFiletypeJson } from "react-icons/bs";
 import { FiUpload } from "react-icons/fi";
 
-// TODO: FIRST check if user already has data in the database
-// TODO: If yes, then reroute to dashboard and fetch data there
-// TODO: If no, then show the upload file component (already implemented)
-
 const UploadData: React.FC = () => {
+  console.log("HERE!");
   const { data: sessionData } = useSession();
 
   const router = useRouter();
@@ -19,9 +16,13 @@ const UploadData: React.FC = () => {
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
+  console.log({ uploadedFileName });
+  console.log({ uploadedFile });
+  console.log({ success });
+
   const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
     acceptedFiles.forEach((file) => {
-      // console.log("Accepted file:", file);
+      console.log("Accepted file:", file);
       setUploadedFileName(file.name);
 
       const reader = new FileReader();
@@ -42,6 +43,7 @@ const UploadData: React.FC = () => {
   });
 
   const handleUploadData = async () => {
+    console.log("Upload data button clicked");
     if (sessionData && uploadedFile) {
       try {
         const response = await uploadDataHelper(

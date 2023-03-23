@@ -1,13 +1,13 @@
-import React, { useEffect } from "react";
+import React from "react";
+import UploadData from "../components/UploadData";
 import { NextPage } from "next";
+import Head from "next/head";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Spinner from "~/components/Spinner";
-import Head from "next/head";
-import { signIn, signOut, useSession } from "next-auth/react";
 
-const Home: NextPage = () => {
+const UploadDataPage: NextPage = () => {
   const { data: sessionData, status } = useSession();
-
   const router = useRouter();
 
   if (status === "loading") {
@@ -18,11 +18,9 @@ const Home: NextPage = () => {
     );
   }
 
-  if (sessionData) {
-    console.log(
-      "DEBUG: [/index] sessionData available -- routing to /dashboard"
-    );
-    router.push("/dashboard");
+  if (!sessionData) {
+    router.push("/");
+    return null;
   }
 
   return (
@@ -40,17 +38,11 @@ const Home: NextPage = () => {
 
           <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[2rem]">
             {" "}
-            /index
+            /uploadData
           </h2>
 
-          <div className="flex flex-col items-center justify-center gap-4">
-            <p className="text-center text-2xl text-white">Not logged in</p>
-            <button
-              className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-              onClick={() => void signIn()}
-            >
-              Log in
-            </button>
+          <div className="flex flex-col items-center gap-2">
+            {sessionData && <UploadData />}
           </div>
         </div>
       </main>
@@ -58,4 +50,4 @@ const Home: NextPage = () => {
   );
 };
 
-export default Home;
+export default UploadDataPage;
