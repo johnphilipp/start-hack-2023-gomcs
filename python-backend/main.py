@@ -1,14 +1,24 @@
-from typing import Dict
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from pymongo import MongoClient, ReturnDocument
-from pymongo.collection import Collection
+from pymongo import MongoClient
 from pymongo.errors import PyMongoError
 import json
 import mongo_queries
 import co2_api
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+origins = ["http://localhost:3000"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 mongo_client = MongoClient("mongodb://root:8nP7s0a@localhost:27017/")
 mongo_db = mongo_client["gomcs"]
 
