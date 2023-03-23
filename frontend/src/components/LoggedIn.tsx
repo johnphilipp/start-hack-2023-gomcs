@@ -13,13 +13,16 @@ import UploadData from "./UploadData";
 
 const LoggedIn: React.FC = () => {
   const { data: sessionData } = useSession();
+  const [userHasDataInDB, setUserHasDataInDB] = useState<boolean>(false);
 
   const router = useRouter();
 
-  // This is just mocked for now, but behavior should be similar
-  // If you set this to true it will redirect to dashboard
-  // So we want to get the true/false from a request to some endpoint that checks if DB has data form user (sessionData.user.id)
-  const userHasDataInDB = false;
+  if(!!sessionData?.user.id) {
+    requestUserData(sessionData?.user.id).then((response: Response) => {
+      if(response.ok) setUserHasDataInDB(true)
+      else setUserHasDataInDB(false)
+    })
+  }
 
   if (!sessionData) {
     return <div>Not logged in</div>;
@@ -29,6 +32,17 @@ const LoggedIn: React.FC = () => {
     router.push("/dashboard");
   }
   return <UploadData />;
+};
+
+const requestUserData = async (userId: string) => {
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/timeline/${userId}`;
+  console.log(`Make user data request ${url}`)
+
+  const response = await fetch(url);
+
+  console.log(response)
+
+  return response;
 };
 
 export default LoggedIn;
