@@ -1,14 +1,9 @@
-import React, { useState, useCallback } from "react";
 import { type NextPage } from "next";
 import Head from "next/head";
-import { signIn, signOut, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 
 import LoggedIn from "~/components/LoggedIn";
 import LoggedOut from "~/components/LoggedOut";
-
-// TODO: FIRST check if user already has data in the database
-// TODO: If yes, then reroute to dashboard and fetch data there
-// TODO: If no, then show the upload file component (already implemented)
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
