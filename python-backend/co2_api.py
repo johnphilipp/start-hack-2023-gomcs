@@ -34,6 +34,13 @@ def estimate_car_emissions(distance: int):
 
 
 @cached(cache=TTLCache(maxsize=4096, ttl=600))
+def estimate_motorcycle_emissions(distance: int):
+    activity = "passenger_vehicle-vehicle_type_motorcycle_rural-fuel_source_na-engine_size_na-vehicle_age_na" \
+               "-vehicle_weight_na"
+    return estimate_emissions(distance, activity)
+
+
+@cached(cache=TTLCache(maxsize=4096, ttl=600))
 def estimate_train_emissions(distance: int):
     activity = "passenger_train-route_type_commuter_rail-fuel_source_na"
     return estimate_emissions(distance, activity)
