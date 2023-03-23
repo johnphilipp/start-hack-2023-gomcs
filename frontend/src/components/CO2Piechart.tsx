@@ -32,7 +32,7 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
 
     return (
         <g>
-            <payload.icon x={cx} y={cy} textAnchor="middle" size={32} />
+            <payload.icon x={cx - 16} y={cy - 16} size={32} />
             <Sector
                 cx={cx}
                 cy={cy}
@@ -53,8 +53,8 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
             />
             <path d={`M${sx},${sy}L${mx},${my}L${ex},${ey}`} stroke={fill} fill="none"/>
             <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none"/>
-            <text z={1} x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} textAnchor={textAnchor}
-                  fill="#333">{`${value} kg CO2`}</text>
+            <text z={1} x={ex + (cos >= 0 ? 1 : -1) * 6} y={ey} textAnchor={textAnchor}
+                  fill="#333">{`${value}kg`}</text>
 {/*            <text z={1} x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
                 {`(Rate ${(percent * 100).toFixed(2)}%)`}
             </text>*/}
