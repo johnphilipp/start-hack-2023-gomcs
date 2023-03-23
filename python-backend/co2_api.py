@@ -2,7 +2,7 @@ import requests
 from cachetools import cached, TTLCache
 
 climatiq_url = "https://beta3.api.climatiq.io/estimate"
-climatiq_bearer = "TOKEN"
+climatiq_bearer = "MT5A3N0GGV4WQRMS2TYMGCWYRC2C"
 
 
 def estimate_emissions(distance: int, activity_type: str):
@@ -22,7 +22,8 @@ def estimate_emissions(distance: int, activity_type: str):
 
     response = requests.post(climatiq_url, headers=headers, json=data)
     json_response = response.json()
-    del json_response["emission_factor"]
+    if "emission_factor" in json_response:
+        del json_response["emission_factor"]
     return json_response
 
 
