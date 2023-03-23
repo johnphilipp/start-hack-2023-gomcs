@@ -124,8 +124,14 @@ async def aggregate_by_activity_type(userid: str) -> JSONResponse:
 @app.get("/stats/byYear/{userid}")
 async def aggregate_by_activity_type(userid: str) -> JSONResponse:
     result = mongo_queries.get_distance_by_year(userid)
-
     return JSONResponse(content=result)
+
+
+@app.delete("/{userid}")
+async def delete_all_data(userid: str) -> JSONResponse:
+    mongo_queries.delete_data(userid)
+
+    return JSONResponse(content={"message": "Data deleted"})
 
 
 @app.get("/stats/byWeekDay/{userid}")
