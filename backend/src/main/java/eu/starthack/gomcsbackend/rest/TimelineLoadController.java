@@ -1,5 +1,6 @@
 package eu.starthack.gomcsbackend.rest;
 
+import eu.starthack.gomcsbackend.domain.ActivitySegment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bson.Document;
@@ -25,24 +26,17 @@ public class TimelineLoadController {
 
     @CrossOrigin(origins = "http://localhost:3000")
     @GetMapping("/{userid}")
-    public ResponseEntity<List<Document>> getTimeline(@PathVariable("userid") String userId) {
+    public ResponseEntity<List<ActivitySegment>> getTimeline(@PathVariable("userid") String userId) {
         LOGGER.info("GET timeline for " + userId);
         try {
-            Query query = new Query(Criteria.where("userId").is(userId));
-            List<Document> timeline = mongoTemplate.find(query, Document.class, "timeline");
-
-            List<Document> timelineProcessed = new ArrayList<>();
-
-            timeline.stream().forEach(document -> {
-                Document timelineDocument = (Document) document.get("timeline");
-                timelineProcessed.add(timelineDocument);
-            });
+            List<ActivitySegment> timeline = mongoTemplate.findAll(ActivitySegment.class, userId);
 
             if (timeline.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
             }
-            return ResponseEntity.ok(timelineProcessed);
+            return ResponseEntity.ok(timeline);
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }

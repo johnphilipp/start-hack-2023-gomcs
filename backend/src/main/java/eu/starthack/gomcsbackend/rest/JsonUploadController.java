@@ -36,9 +36,6 @@ public class JsonUploadController {
             String userId = (String) request.get("userId");
             //JSONObject timelineJson = new JSONObject((Map) );
             Document document = Document.parse((String) request.get("timeline"));
-            Document bigDocument = new Document();
-            bigDocument.append("userId", userId);
-            bigDocument.append("timeline", document);
 
             // create timeline object with user id and timeline
             Timeline timeline = new Timeline(userId);
@@ -69,11 +66,11 @@ public class JsonUploadController {
                     System.out.println("Activity segment " + activitySegmentObject.getActivityType() + " " + activitySegmentObject.getDistance() + " " + activitySegmentObject.getConfidence() + " " + activitySegmentObject.getStartTime() + " " + activitySegmentObject.getEndTime());
                     // add activity segment to timeline
                     timeline.addActivitySegment(activitySegmentObject);
+
+                    mongoTemplate.save(activitySegmentObject, userId);
                 }
             }
-            
-            
-            mongoTemplate.save(bigDocument, "timeline");
+
             return ResponseEntity.status(HttpStatus.CREATED).body("Timeline added successfully!");
         } catch (JSONException e) {
             e.printStackTrace();
