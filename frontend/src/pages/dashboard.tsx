@@ -6,6 +6,7 @@ import Spinner from "~/components/Spinner";
 import { NextPage } from "next";
 import UploadData from "~/components/UploadData";
 import Analytics from "~/components/Analytics";
+import {TransportStats} from "~/components/TransportStats";
 
 const DashboardPage: NextPage = () => {
   const { data: sessionData, status } = useSession();
@@ -74,7 +75,7 @@ const DashboardPage: NextPage = () => {
 
           <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[2rem]">
             {" "}
-            /dashboard
+            <TransportStats />
           </h2>
 
           <div className="w-full border-t border-gray-500" />
