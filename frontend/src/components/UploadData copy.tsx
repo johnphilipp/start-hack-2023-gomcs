@@ -7,6 +7,7 @@ import { BsFiletypeJson } from "react-icons/bs";
 import { FiUpload } from "react-icons/fi";
 
 const UploadData: React.FC = () => {
+  console.log("HERE!");
   const { data: sessionData } = useSession();
 
   const router = useRouter();
@@ -15,17 +16,19 @@ const UploadData: React.FC = () => {
   const [uploadedFile, setUploadedFile] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
 
-  const handleFileUpload = useCallback((files: FileList) => {
-    Array.from(files).forEach((file) => {
-      // console.log("DEBUG [UploadData]: Accepted file: ", file);
+  console.log({ uploadedFileName });
+  console.log({ uploadedFile });
+  console.log({ success });
 
+  const onDrop = useCallback((acceptedFiles: FileWithPath[]) => {
+    acceptedFiles.forEach((file) => {
+      console.log("Accepted file:", file);
       setUploadedFileName(file.name);
 
       const reader = new FileReader();
       reader.onload = () => {
         const fileContent = reader.result as string;
-        // console.log("DEBUG [UploadData]: File content: ", fileContent);
-
+        // console.log("File content:", fileContent);
         setUploadedFile(fileContent);
       };
       reader.readAsText(file);
@@ -33,14 +36,14 @@ const UploadData: React.FC = () => {
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop: (acceptedFiles: FileWithPath[]) =>
-      handleFileUpload(acceptedFiles as unknown as FileList),
+    onDrop,
     accept: {
       "application/json": [".json"],
     },
   });
 
   const handleUploadData = async () => {
+    console.log("Upload data button clicked");
     if (sessionData && uploadedFile) {
       try {
         const response = await uploadDataHelper(
@@ -61,16 +64,7 @@ const UploadData: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-center text-2xl text-white">
-        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-      </p>
-      <button
-        className="mb-8 rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        onClick={sessionData ? () => void signOut() : () => void signIn()}
-      >
-        Log out
-      </button>
+    <>
       <div
         {...getRootProps()}
         className={`mt-2 sm:col-span-2 sm:mt-0 ${
@@ -81,6 +75,19 @@ const UploadData: React.FC = () => {
           <div className="space-y-1 text-center">
             <BsFiletypeJson className="mx-auto mb-4 h-16 w-12 text-gray-400" />
             <div className="flex text-sm text-gray-600">
+              <label
+                htmlFor="file-upload"
+                className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500"
+              >
+                <span className="p-1">Upload a file</span>
+                <input
+                  {...getInputProps()}
+                  id="file-upload"
+                  name="file-upload"
+                  type="file"
+                  className="sr-only"
+                />
+              </label>
               <p className="pl-2">or drag and drop</p>
             </div>
             <p className="text-xs text-gray-500">JSON</p>
@@ -104,7 +111,7 @@ const UploadData: React.FC = () => {
       {success && (
         <p className="text-green-500">Data uploaded successfully!</p> // conditionally render success message
       )}
-    </div>
+    </>
   );
 };
 

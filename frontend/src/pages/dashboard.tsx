@@ -4,6 +4,7 @@ import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import Spinner from "~/components/Spinner";
 import { NextPage } from "next";
+import UploadData from "~/components/UploadData";
 
 const DashboardPage: NextPage = () => {
   const { data: sessionData, status } = useSession();
@@ -12,7 +13,7 @@ const DashboardPage: NextPage = () => {
 
   const [buttonClicked, setButtonClicked] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [userHasDataInDb, setUserHasDataInDb] = useState(true);
+  const [userHasDataInDb, setUserHasDataInDb] = useState(false);
 
   // MOCKED:
 
@@ -112,11 +113,7 @@ const DashboardPage: NextPage = () => {
               </div>
             )}
 
-            {buttonClicked && !userHasDataInDb && (
-              <div className="bg-white/10 p-20 text-center text-xl text-white">
-                No Data -- Upload Form
-              </div>
-            )}
+            {buttonClicked && !userHasDataInDb && <UploadData />}
 
             {/* button to delete data from backend db */}
           </div>
