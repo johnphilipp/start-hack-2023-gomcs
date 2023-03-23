@@ -40,6 +40,24 @@ def get_cached_plain_stats(user_id: str, start_time=None, end_time=None):
     return distances_by_activity_type
 
 
+def get_drives_below_threshold(user_id: str, threshold: int):
+    mongo_timeline_collection = mongo_db[user_id]
+
+    results = mongo_timeline_collection.find({"activity_type": "IN_PASSENGER_VEHICLE", "distance": {"$lt": threshold}})
+
+    drives_below_threshold = []
+    for doc in results:
+        activity_type = doc["activity_type"]
+        distance = doc["distance"]
+        confidence = doc["confidence"]
+        start_time = doc["start_time"]
+        end_time = doc["end_time"]
+        activity_segment = ActivitySegment(activity_type, distance, confidence, start_time, end_time)
+        drives_below_threshold.append(activity_segment.__dict__)
+
+    return drives_below_threshold
+
+
 def get_cached_data(user_id: str):
     mongo_timeline_collection = mongo_db[user_id]
 

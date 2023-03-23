@@ -94,6 +94,15 @@ async def get_timeline(user_id: str) -> JSONResponse:
 
     return JSONResponse(content=timeline)
 
+@app.get("/short_drives/{user_id}")
+async def get_short_drives(user_id: str) -> JSONResponse:
+    short_drives = mongo_queries.get_drives_below_threshold(user_id, 10000)
+
+    if not short_drives:
+        return JSONResponse(status_code=204, content=None)
+
+    return JSONResponse(content=short_drives)
+
 
 @app.post("/upload_zip/{user_id}")
 async def upload_zipfile(user_id: str, file: UploadFile = File(...)):
