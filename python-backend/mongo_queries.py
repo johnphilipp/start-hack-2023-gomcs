@@ -16,7 +16,7 @@ def get_cached_plain_stats(user_id: str, start_time=None, end_time=None):
     aggregation_pipeline = [
         {
             "$group": {
-                "_id": "$activityType",
+                "_id": "$activity_type",
                 "totalDistance": {"$sum": "$distance"}
             }
         }
@@ -26,7 +26,7 @@ def get_cached_plain_stats(user_id: str, start_time=None, end_time=None):
         aggregation_pipeline[0]["$match"] = {"startTime": {"$gte": start_time, "$lte": end_time}}
 
     mongo_stats_collection = mongo_db[user_id]
-
+    print(aggregation_pipeline)
     results = mongo_stats_collection.aggregate(aggregation_pipeline)
 
     print(results)
@@ -63,11 +63,11 @@ def get_cached_data(user_id: str):
 
     timeline = []
     for doc in mongo_timeline_collection.find():
-        activity_type = doc["activityType"]
+        activity_type = doc["activity_type"]
         distance = doc["distance"]
         confidence = doc["confidence"]
-        start_time = doc["startTime"]
-        end_time = doc["endTime"]
+        start_time = doc["start_time"]
+        end_time = doc["end_time"]
         activity_segment = ActivitySegment(activity_type, distance, confidence, start_time, end_time)
         timeline.append(activity_segment.__dict__)
 

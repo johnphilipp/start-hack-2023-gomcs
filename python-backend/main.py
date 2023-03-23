@@ -16,7 +16,7 @@ origins = ["http://localhost:3000"]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,6 +48,7 @@ class Timeline:
 async def aggregate_by_activity_type(userid: str, start_time=None, end_time=None) -> JSONResponse:
     try:
         distances_by_activity_type = mongo_queries.get_cached_plain_stats(userid, start_time, end_time)
+        print(distances_by_activity_type)
         if len(distances_by_activity_type) == 0:
             return JSONResponse(status_code=204, content=None)
 
