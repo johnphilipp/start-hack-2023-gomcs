@@ -68,12 +68,14 @@ async def aggregate_by_activity_type(userid: str) -> JSONResponse:
 
         if "IN_PASSENGER_VEHICLE" in distances_by_activity_type:
             car = distances_by_activity_type["IN_PASSENGER_VEHICLE"]
-            car = car + distances_by_activity_type["IN_VEHICLE"]
 
-            total = co2_api.estimate_car_emissions(distances_by_activity_type["IN_PASSENGER_VEHICLE"])
+            if "IN_VEHICLE" in distances_by_activity_type:
+                car = car + distances_by_activity_type["IN_VEHICLE"]
+
+            total = co2_api.estimate_car_emissions(car)
 
             if "MOTORCYCLING" in distances_by_activity_type:
-                total = total + co2_api.estimate_motorcycle_emissions(distances_by_activity_type["MOTORCYCLING"])
+                total = mongo_queries.merge_co2_documents(total, co2_api.estimate_motorcycle_emissions(distances_by_activity_type["MOTORCYCLING"]))
 
             estimations["car"] = total
 

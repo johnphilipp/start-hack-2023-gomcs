@@ -192,3 +192,24 @@ def delete_data(user_id: str):
     mongo_timeline_collection = mongo_db[user_id]
     mongo_timeline_collection.drop()
 
+
+def merge_co2_documents(first_json_doc, second_json_doc):
+
+    print(first_json_doc)
+
+    first_json_doc["co2e"] = first_json_doc["co2e"] + second_json_doc["co2e"]
+
+    subjson1 = first_json_doc["constituent_gases"]
+    subjson2 = second_json_doc["constituent_gases"]
+
+    subjson1["co2e_total"] = subjson1["co2e_total"] + subjson2["co2e_total"]
+
+
+    #subjson1["co2e_other"] = subjson1["co2e_other"] + subjson2["co2e_other"]
+    #subjson1["co2"] = subjson1["co2"] + subjson2["co2"]
+    #subjson1["ch4"] = subjson1["ch4"] + subjson2["ch4"]
+    #subjson1["n2o"] = subjson1["n2o"] + subjson2["n2o"]
+
+    first_json_doc["constituent_gases"] = subjson1
+    return first_json_doc
+
