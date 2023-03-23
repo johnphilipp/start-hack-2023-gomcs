@@ -57,56 +57,62 @@ async def aggregate_by_activity_type(userid: str, start_time=None, end_time=None
         return JSONResponse(status_code=500, content=None)
 
 
-@app.get("/stats/co2/{userid}")
+@app.get("/stats/all/{userid}")
 async def aggregate_by_activity_type(userid: str) -> JSONResponse:
     try:
         distances_by_activity_type = mongo_queries.get_distance_by_year(userid)
 
-
         if len(distances_by_activity_type) == 0:
             return JSONResponse(status_code=204, content=None)
 
-        estimations = {}
-
         for year in distances_by_activity_type:
-            if "IN_PASSENGER_VEHICLE" in distances_by_activity_type:
-                car = distances_by_activity_type["IN_PASSENGER_VEHICLE"]
+            current_year = distances_by_activity_type[year]
+            if "IN_PASSENGER_VEHICLE" in current_year:
+                car = current_year["IN_PASSENGER_VEHICLE"]["distance"]
 
-                if "IN_VEHICLE" in distances_by_activity_type:
-                    car = car + distances_by_activity_type["IN_VEHICLE"]
+                if "IN_VEHICLE" in current_year:
+                    car = car + current_year["IN_VEHICLE"]["distance"]
 
                 total = co2_api.estimate_car_emissions(car)
 
-                if "MOTORCYCLING" in distances_by_activity_type:
-                    total = mongo_queries.merge_co2_documents(total, co2_api.estimate_motorcycle_emissions(distances_by_activity_type["MOTORCYCLING"]))
+                if "MOTORCYCLING" in current_year:
+                    total = total + co2_api.estimate_motorcycle_emissions(current_year["MOTORCYCLING"]["distance"])
 
-                estimations["IN_PASSENGER_VEHICLE"] = total
+                current_year["IN_PASSENGER_VEHICLE"]["co2"] = total
 
-            if "IN_TRAIN" in distances_by_activity_type:
-                total = distances_by_activity_type["IN_TRAIN"]
-                total = total + distances_by_activity_type["IN_SUBWAY"]
-                total = total + distances_by_activity_type["IN_TRAM"]
+            if "IN_TRAIN" in current_year:
+                total = current_year["IN_TRAIN"]["distance"]
+                total = total + current_year["IN_SUBWAY"]["distance"]
+                total = total + current_year["IN_TRAM"]["distance"]
 
-                estimations["IN_TRAIN"] = co2_api.estimate_train_emissions(total)
+                current_year["IN_TRAIN"]["co2"] = co2_api.estimate_train_emissions(total)
 
-            if "IN_FERRY" in distances_by_activity_type:
-                estimations["IN_FERRY"] = co2_api.estimate_ferry_emissions(distances_by_activity_type["IN_FERRY"])
+            if "IN_FERRY" in current_year:
+                current_year["IN_FERRY"]["co2"] = co2_api.estimate_ferry_emissions(
+                    current_year["IN_FERRY"]["distance"])
 
-            if "FLYING" in distances_by_activity_type:
-                estimations["FLYING"] = co2_api.estimate_plane_emissions(distances_by_activity_type["FLYING"])
+            if "FLYING" in current_year:
+                current_year["FLYING"]["co2"] = co2_api.estimate_plane_emissions(current_year["FLYING"]["distance"])
 
-            if "WALKING" in distances_by_activity_type:
-                estimations["WALKING"] = 0
+            if "WALKING" in current_year:
+                current_year["WALKING"]["co2"] = 0
 
-            if "ON_BICYCLE" in distances_by_activity_type:
-                estimations["ON_BICYCLE"] = 0
+            if "ON_BICYCLE" in current_year:
+                current_year["ON_BICYCLE"]["co2"] = 0
 
-            if "IN_BUS" in distances_by_activity_type:
-                estimations["IN_BUS"] = 0
+            if "IN_BUS" in current_year:
+                current_year["IN_BUS"]["co2"] = 0
 
-        return JSONResponse(content=estimations)
+            used_fields = ["IN_PASSENGER_VEHICLE", "IN_TRAIN", "IN_FERRY", "FLYING", "WALKING", "ON_BICYCLE", "IN_BUS"]
+            for i in current_year.copy():
+                if i not in used_fields:
+                    del current_year[i]
+            distances_by_activity_type[year] = current_year
+
+        return JSONResponse(content=distances_by_activity_type)
     except PyMongoError:
         return JSONResponse(status_code=500, content=None)
+
 
 @app.get("/stats/byMonth/{userid}")
 async def aggregate_by_activity_type(userid: str) -> JSONResponse:
@@ -114,18 +120,19 @@ async def aggregate_by_activity_type(userid: str) -> JSONResponse:
 
     return JSONResponse(content=result)
 
+
 @app.get("/stats/byYear/{userid}")
 async def aggregate_by_activity_type(userid: str) -> JSONResponse:
     result = mongo_queries.get_distance_by_year(userid)
 
     return JSONResponse(content=result)
 
+
 @app.get("/stats/byWeekDay/{userid}")
 async def aggregate_by_activity_type(userid: str) -> JSONResponse:
     result = mongo_queries.get_distance_by_weekday(userid)
 
     return JSONResponse(content=result)
-
 
 
 @app.get("/loadTimeline/{user_id}")
@@ -137,6 +144,7 @@ async def get_timeline(user_id: str) -> JSONResponse:
 
     return JSONResponse(content=timeline)
 
+
 @app.get("/short_drives/{user_id}")
 async def get_short_drives(user_id: str) -> JSONResponse:
     short_drives = mongo_queries.get_drives_below_threshold(user_id, 10000)
@@ -145,16 +153,6 @@ async def get_short_drives(user_id: str) -> JSONResponse:
         return JSONResponse(status_code=204, content=None)
 
     return JSONResponse(content=short_drives)
-
-
-@app.get("/stats/all/{user_id}")
-async def get_short_drives(user_id: str) -> JSONResponse:
-
-    response_data = mongo_queries.get_distance_by_year(user_id)
-
-    print(response_data)
-
-    return JSONResponse(content=response_data)
 
 
 @app.post("/upload_zip/{user_id}")
@@ -179,6 +177,7 @@ async def upload_zipfile(user_id: str, file: UploadFile = File(...)):
                     mongo_queries.store_data(user_id, json_str)
 
     return {"message": "ZIP file uploaded and unpacked successfully."}
+
 
 @app.post("/uploadJsonTimeline")
 async def add_timeline(request: Request) -> JSONResponse:

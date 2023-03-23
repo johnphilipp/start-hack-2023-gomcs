@@ -24,7 +24,9 @@ def estimate_emissions(distance: int, activity_type: str):
     json_response = response.json()
     if "emission_factor" in json_response:
         del json_response["emission_factor"]
-    return json_response
+
+    print(json_response)
+    return json_response["co2e"]
 
 
 @cached(cache=TTLCache(maxsize=4096, ttl=600))
