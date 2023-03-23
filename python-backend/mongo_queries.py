@@ -83,6 +83,58 @@ def get_distance_by_month(user_id: str):
         trends_by_month.append({"month": month, "activity_type": activity_type, "totalDistance": total_distance})
     return trends_by_month
 
+def get_distance_by_year(user_id: str):
+    mongo_timeline_collection = mongo_db[user_id]
+    # convert start_time to datetime object, then extract year, then group by year and activity_type and sum distance
+    aggregation_pipeline = [
+        { "$project": { 
+            "year": { "$year": { "$toDate": "$start_time" }},
+            "distance": "$distance",
+            "activity_type": "$activity_type"
+        }},
+        { "$group": { 
+            "_id": { "year": "$year", "activity_type": "$activity_type" },
+            "totalDistance": { "$sum": "$distance" }
+        }}
+    ]
+
+    results = mongo_timeline_collection.aggregate(aggregation_pipeline)
+    
+    trends_by_year = []
+    for doc in results:
+        # create dict
+        year = doc["_id"]["year"]
+        activity_type = doc["_id"]["activity_type"]
+        total_distance = doc["totalDistance"]
+        trends_by_year.append({"year": year, "activity_type": activity_type, "totalDistance": total_distance})
+    return trends_by_year
+
+def get_distance_by_weekday(user_id: str):
+    mongo_timeline_collection = mongo_db[user_id]
+    # convert start_time to datetime object, then extract weekday, then group by weekday and activity_type and sum distance
+    aggregation_pipeline = [
+        { "$project": { 
+            "weekday": { "$dayOfWeek": { "$toDate": "$start_time" }},
+            "distance": "$distance",
+            "activity_type": "$activity_type"
+        }},
+        { "$group": { 
+            "_id": { "weekday": "$weekday", "activity_type": "$activity_type" },
+            "totalDistance": { "$sum": "$distance" }
+        }}
+    ]
+
+    results = mongo_timeline_collection.aggregate(aggregation_pipeline)
+    
+    trends_by_weekday = []
+    for doc in results:
+        # create dict
+        weekday = doc["_id"]["weekday"]
+        activity_type = doc["_id"]["activity_type"]
+        total_distance = doc["totalDistance"]
+        trends_by_weekday.append({"weekday": weekday, "activity_type": activity_type, "totalDistance": total_distance})
+    return trends_by_weekday
+
 
 def get_cached_data(user_id: str):
     mongo_timeline_collection = mongo_db[user_id]
