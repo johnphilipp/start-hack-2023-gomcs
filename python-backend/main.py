@@ -157,11 +157,13 @@ async def upload_zipfile(user_id: str, file: UploadFile = File(...)):
         for filename in zip.namelist():
             # Check if the file is a JSON file matching the pattern
             print(filename)
+            # filename should start end with .json
             if filename.endswith(".json"):
                 # Extract the JSON file from the archive and read its contents
                 with zip.open(filename) as json_file:
                     json_str = json_file.read().decode("utf-8")
                     # Print the contents of the JSON file
+                    print(json_str[:100])
                     mongo_queries.store_data(user_id, json_str)
 
     return {"message": "ZIP file uploaded and unpacked successfully."}

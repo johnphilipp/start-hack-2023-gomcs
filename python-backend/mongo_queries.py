@@ -157,29 +157,35 @@ def store_data(user_id: str, json_data):
 
     # loop through timeline objects, identify activitySegment and add to timeline
     timeline_json = json.loads(json_data)
-    timeline_objects = timeline_json["timelineObjects"]
-    for timeline_object in timeline_objects:
-        # check if current object is an activitySegment
-        if "activitySegment" in timeline_object:
-            # get activitySegment object
-            activity_segment = timeline_object["activitySegment"]
-            # get activity type
-            activity_type = activity_segment["activityType"]
-            # get distance
-            distance = activity_segment["distance"]
-            # get confidence
-            confidence = activity_segment["confidence"]
-            # get start time
-            duration = activity_segment["duration"]
-            start_time = duration["startTimestamp"]
-            # get end time
-            end_time = duration["endTimestamp"]
-            # create activitySegment object
-            activity_segment_object = ActivitySegment(activity_type, distance, confidence, start_time, end_time)
-            # add activity segment to timeline
-            timeline.add_activity_segment(activity_segment_object)
+    try:
+        timeline_objects = timeline_json["timelineObjects"]
+        for timeline_object in timeline_objects:
+            # check if current object is an activitySegment
+            try:
+                if "activitySegment" in timeline_object:
+                    # get activitySegment object
+                    activity_segment = timeline_object["activitySegment"]
+                    # get activity type
+                    activity_type = activity_segment["activityType"]
+                    # get distance
+                    distance = activity_segment["distance"]
+                    # get confidence
+                    confidence = activity_segment["confidence"]
+                    # get start time
+                    duration = activity_segment["duration"]
+                    start_time = duration["startTimestamp"]
+                    # get end time
+                    end_time = duration["endTimestamp"]
+                    # create activitySegment object
+                    activity_segment_object = ActivitySegment(activity_type, distance, confidence, start_time, end_time)
+                    # add activity segment to timeline
+                    timeline.add_activity_segment(activity_segment_object)
 
-            mongo_timeline_collection.insert_one(activity_segment_object.__dict__)
+                    mongo_timeline_collection.insert_one(activity_segment_object.__dict__)
+            except KeyError:
+                print("KeyError")
+    except KeyError:
+        print("KeyError")
 
 
 def delete_data(user_id: str):
