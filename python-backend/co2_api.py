@@ -50,13 +50,19 @@ def estimate_motorcycle_emissions(distance: int):
 
 @cached(cache=TTLCache(maxsize=4096, ttl=600))
 def estimate_train_emissions(distance: int):
-    activity = "passenger_train-route_type_commuter_rail-fuel_source_na"
+    activity = "passenger_vehicle-vehicle_type_bus-fuel_source_na-distance_na-engine_size_na"
     return estimate_emissions(distance, activity)
 
 
 @cached(cache=TTLCache(maxsize=4096, ttl=600))
 def estimate_ferry_emissions(distance: int):
     activity = "passenger_ferry-route_type_car_passenger-fuel_source_na"
+    return estimate_emissions(distance, activity)
+
+
+@cached(cache=TTLCache(maxsize=4096, ttl=600))
+def estimate_bus_emissions(distance: int):
+    activity = "passenger_vehicle-vehicle_type_bus-fuel_source_na-distance_na-engine_size_na"
     return estimate_emissions(distance, activity)
 
 

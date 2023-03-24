@@ -63,7 +63,7 @@ async def aggregate_by_activity_type(userid: str, start_time=None, end_time=None
         return JSONResponse(status_code=500, content=None)
 
 
-@cached(cache=TTLCache(maxsize=18096, ttl=600))
+@cached(cache=TTLCache(maxsize=26096, ttl=600))
 def get_activities(userid: str):
     distances_by_activity_type = mongo_queries.get_distance_by_year(userid)
 
@@ -101,11 +101,12 @@ def get_activities(userid: str):
         if "WALKING" in current_year:
             current_year["WALKING"]["co2"] = 0
 
-        if "ON_BICYCLE" in current_year:
+        if "CYCLING" in current_year:
+            current_year["ON_BICYCLE"] = {"distance": current_year["CYCLING"]["distance"]}
             current_year["ON_BICYCLE"]["co2"] = 0
 
         if "IN_BUS" in current_year:
-            current_year["IN_BUS"]["co2"] = 0
+            current_year["IN_BUS"]["co2"] = co2_api.estimate_bus_emissions(current_year["IN_BUS"]["distance"])
 
         used_fields = ["IN_PASSENGER_VEHICLE", "IN_TRAIN", "IN_FERRY", "FLYING", "WALKING", "ON_BICYCLE", "IN_BUS"]
         for i in current_year.copy():
@@ -233,7 +234,7 @@ async def add_timeline(request: Request) -> JSONResponse:
 async def query_the_oracle(userid: str) -> JSONResponse:
     result = get_activities(userid)
 
-    gpt_query = "I will provide you now with my distace travelled for each transportation type for each year and " \
+    gpt_query = "I will provide you now with my distance travelled for each transportation type for each year and " \
                 "provide the co2 emissions for each transportation type:"
 
     for i in result:
@@ -241,14 +242,14 @@ async def query_the_oracle(userid: str) -> JSONResponse:
         for j in i['activities']:
             gpt_query += f" transportation: {j['activity_type']} distance: {j['distance']} emission {j['co2']} kg co2 \n"
 
-    gpt_query += "Give me feedback for my carbon footprint over the provided time and how i can improve it."
+    gpt_query += "Give a brief feedback for my carbon footprint over the provided time and how i can improve it."
 
-    openai.api_key = "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"
+    openai.api_key = "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"
     openai.organization = "org-L3fQsKkOZ6wNTOogCpUpvrNZ"
     url = 'https://api.openai.com/v1/chat/completions'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer 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'
+        'Authorization': f'Bearer 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'
     }
 
     # Set the request data as a JSON object
