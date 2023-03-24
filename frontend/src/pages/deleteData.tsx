@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import Spinner from "~/components/Spinner";
 import { NextPage } from "next";
 import Header from "~/components/Header";
-import Dashboard from "~/components/Dashboard";
 import DeleteData from "~/components/DeleteData";
 
 const DeleteDataPage: NextPage = () => {
@@ -27,7 +26,7 @@ const DeleteDataPage: NextPage = () => {
   return (
     <>
       <Header />
-      <div className="bg-gradient-to-b from-[#2e026d] to-[#15162c]">
+      <div className="bg-gradient-to-b from-[#40c057] to-[#15162c]">
         <main className="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center p-6 text-white lg:px-8">
           <DeleteData />
         </main>

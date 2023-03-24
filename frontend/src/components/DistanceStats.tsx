@@ -1,8 +1,11 @@
-import { createStyles, Progress, Box, Text, Group, Paper, SimpleGrid, rem } from '@mantine/core';
+import {createStyles, Progress, Box, Text, Group, Paper, SimpleGrid, rem, px} from '@mantine/core';
 import {TbArrowDown, TbArrowUp, TbDeviceAnalytics} from 'react-icons/tb';
 import React from "react";
 
 const useStyles = createStyles((theme) => ({
+    wrapper: {
+        minWidth: px(286)
+    },
     progressLabel: {
         fontFamily: `Greycliff CF, ${theme.fontFamily}`,
         lineHeight: 1,
@@ -41,8 +44,8 @@ export interface StatsSegmentsProps {
     }[];
 }
 
-export function DistanceStats({ total, diff, data }: StatsSegmentsProps) {
-    const { classes } = useStyles();
+export function DistanceStats({total, diff, data}: StatsSegmentsProps) {
+    const {classes} = useStyles();
 
     const segments = data.map((segment) => ({
         value: segment.part,
@@ -51,7 +54,7 @@ export function DistanceStats({ total, diff, data }: StatsSegmentsProps) {
     }));
 
     const descriptions = data.map((stat) => (
-        <Box key={stat.label} sx={{ borderBottomColor: stat.color }} className={classes.stat}>
+        <Box key={stat.label} sx={{borderBottomColor: stat.color}} className={classes.stat}>
             <Text tt="uppercase" fz="xs" c="dimmed" fw={700}>
                 {stat.label}
             </Text>
@@ -79,10 +82,10 @@ export function DistanceStats({ total, diff, data }: StatsSegmentsProps) {
                     </Text>
                     <Text c="#2f9e44" className={classes.diff} fz="sm" fw={700}>
                         <span>{diff}%</span>
-                        <TbArrowDown size="1rem" style={{ marginBottom: rem(4) }} />
+                        <TbArrowDown size="1rem" style={{marginBottom: rem(4)}}/>
                     </Text>
                 </Group>
-                <TbDeviceAnalytics size="1.4rem" className={classes.icon} />
+                <TbDeviceAnalytics size="1.4rem" className={classes.icon}/>
             </Group>
 
             <Text c="dimmed" fz="sm">
@@ -92,10 +95,10 @@ export function DistanceStats({ total, diff, data }: StatsSegmentsProps) {
             <Progress
                 sections={segments}
                 size={34}
-                classNames={{ label: classes.progressLabel }}
+                classNames={{label: classes.progressLabel}}
                 mt={40}
             />
-            <SimpleGrid cols={3} breakpoints={[{ maxWidth: 'xs', cols: 1 }]} mt="xl">
+            <SimpleGrid cols={3} breakpoints={[{maxWidth: 'xs', cols: 1}]} mt="xl">
                 {descriptions}
             </SimpleGrid>
         </Paper>
