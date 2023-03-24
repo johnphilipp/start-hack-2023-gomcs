@@ -244,12 +244,12 @@ async def query_the_oracle(userid: str) -> JSONResponse:
 
     gpt_query += "Give a brief feedback for my carbon footprint over the provided time and how i can improve it."
 
-    openai.api_key = "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"
+    openai.api_key = "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"
     openai.organization = "org-L3fQsKkOZ6wNTOogCpUpvrNZ"
     url = 'https://api.openai.com/v1/chat/completions'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer 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'
+        'Authorization': f'Bearer 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'
     }
 
     # Set the request data as a JSON object
