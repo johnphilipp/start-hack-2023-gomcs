@@ -62,7 +62,7 @@ export default function Header(): JSX.Element {
             <>
               <span className="mt-3 mr-3 text-sm font-semibold leading-6 text-white">
                 <img
-                  src={sessionData.user.image}
+                  src={sessionData.user.image ?? ''}
                   className="-mt-1 h-8 w-8 rounded-full"
                 />
               </span>
@@ -121,7 +121,7 @@ export default function Header(): JSX.Element {
                   <>
                     <span className="text-sm font-semibold leading-6">
                       <img
-                        src={sessionData.user.image}
+                        src={sessionData.user.image ?? ''}
                         className="-mt-1 h-12 w-12 rounded-full"
                       />
                     </span>
