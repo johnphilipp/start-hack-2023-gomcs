@@ -248,7 +248,7 @@ async def query_the_oracle(userid: str) -> JSONResponse:
     url = 'https://api.openai.com/v1/chat/completions'
     headers = {
         'Content-Type': 'application/json',
-        'Authorization': f'Bearer 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'
+        'Authorization': f'Bearer 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'
     }
 
     # Set the request data as a JSON object
