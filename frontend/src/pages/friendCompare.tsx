@@ -4,6 +4,7 @@ import Spinner from "~/components/Spinner";
 import { NextPage } from "next";
 import Header from "~/components/Header";
 import Dashboard from "~/components/Dashboard";
+import FriendCompare from "~/components/FriendCompare";
 
 const FriendComparePage: NextPage = () => {
   const { data: sessionData, status } = useSession();
@@ -28,7 +29,7 @@ const FriendComparePage: NextPage = () => {
       <Header />
       <div className="bg-gradient-to-b from-[#40c057] to-[#15162c]">
         <main className="mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center p-6 text-white lg:px-8">
-          Friend Compare :)
+          <FriendCompare />
         </main>
       </div>
     </>

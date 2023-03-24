@@ -7,6 +7,8 @@ import {DistanceStats, StatsSegmentsProps} from "~/components/DistanceStats";
 import CO2Piechart, {CO2PiechartProps} from "~/components/CO2Piechart";
 import {TbBike, TbBus, TbCar, TbPlane, TbQuestionMark, TbShip, TbTrain, TbWalk} from "react-icons/tb";
 import {IconType} from "react-icons";
+import {YearButton} from "~/components/YearButton";
+import {createStyles} from "@mantine/core";
 
 enum activity_type {
     IN_TRAIN= "IN_TRAIN", WALKING = "WALKING", IN_FERRY = "IN_FERRY", IN_PASSENGER_VEHICLE = "IN_PASSENGER_VEHICLE", IN_BUS = "IN_BUS", FLYING = "FLYING", ON_BICYCLE = "ON_BICYCLE"
@@ -25,7 +27,7 @@ const activityToStyleMap = new Map<activity_type, {label: string, color: string,
     }],
     [activity_type.IN_FERRY, {
         label: "Ferry",
-        color: "#fcc419",
+        color: "#22b8cf",
         icon: TbShip
     }],
     [activity_type.IN_PASSENGER_VEHICLE, {
@@ -35,7 +37,7 @@ const activityToStyleMap = new Map<activity_type, {label: string, color: string,
     }],
     [activity_type.IN_BUS, {
         label: "Bus",
-        color: "#22b8cf",
+        color: "#fcc419",
         icon: TbBus
     }],
     [activity_type.FLYING, {
@@ -62,14 +64,27 @@ type DataPerYear = {
     activities: Activity[]
 }
 
+const useStyles = createStyles((theme) => ({
+    root: {
+        backgroundImage: `linear-gradient(-60deg, #69db7c} 0%, #37b24d 100%)`,
+        padding: theme.spacing.xl,
+        borderRadius: theme.radius.md,
+        display: 'flex',
+
+        [theme.fn.smallerThan('xs')]: {
+            flexDirection: 'column',
+        },
+    }
+}));
 
 const Dashboard = () => {
+    const { classes } = useStyles();
     const {data: sessionData, status} = useSession();
 
     const [selectedYear, setSelectedYear] = useState<number>(2023);
     const [co2Data, setCo2Data] = useState<DataPerYear[]>([]);
     const [distanceData, setDistanceData] = useState<StatsSegmentsProps>({
-        data: [], diff: 0, total: 0
+        data: [], diff: 0, total: 0, year: 2023
     });
     const [emissionData, setEmissionData] = useState<CO2PiechartProps>({
         data: [],
@@ -119,6 +134,7 @@ const Dashboard = () => {
         return {
             total: parseFloat((totalDistance / 1000)?.toFixed(0)),
             diff: diffFromPreviousYear(dataOfCurrentYear),
+            year: !!dataOfCurrentYear.year ? dataOfCurrentYear.year : 2023,
             data: dataOfCurrentYear?.activities.map(activity => ({
                 count: !!activity?.distance ? parseFloat((activity?.distance / 1000)?.toFixed(0)) : 0,
                 part: !!activity?.distance ? parseFloat(((activity?.distance / totalDistance) * 100).toFixed(1)) : 0,
@@ -171,6 +187,11 @@ const Dashboard = () => {
                 const response = await fetch(
                     `${process.env.NEXT_PUBLIC_BACKEND_URL}/stats/all/${userId}`
                 );
+                console.log({response});
+                if (response.status !== 200) {
+                    <>No Data</>
+                    return;
+                }
                 const data = await response.json();
                 setCo2Data(data); // --> DATA NOW SAVED IN co2Data
                 const yearIdx = data.findIndex((dataPerYear: DataPerYear) => dataPerYear.year == selectedYear)
@@ -188,7 +209,7 @@ const Dashboard = () => {
             }
             fetchData();
         }
-    }, [sessionData]);
+    }, [sessionData, selectedYear]);
 
     /*
         const distanceData: StatsSegmentsProps = {
@@ -228,26 +249,33 @@ const Dashboard = () => {
             ],
         };*/
 
+
+    function handleYearEvent(year: number) {
+        setSelectedYear(year)
+    }
+
     return (
         <>
             <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
                 <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-                    Timeliner
+                    Green Path
                 </h1>
 
                 <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[2rem]">
                     {" "}
                 </h2>
-                <TransportStats data={transportData.data}/>
+                <div className={classes.root}>
+                    <YearButton currentYear={selectedYear} onChangeYearEvent={handleYearEvent}/>
+                    <TransportStats data={transportData.data}/>
+                </div>
                 <div className="flex flex-row flex-wrap items-center items-stretch justify-center gap-4">
                     <CO2Piechart total={emissionData.total}  data={emissionData.data}/>
-                    {
-                        distanceData && <DistanceStats
+                    <DistanceStats
                             total={distanceData.total}
                             diff={distanceData.diff}
                             data={distanceData.data}
+                            year={selectedYear}
                         />
-                    }
                 </div>
             </div>
         </>

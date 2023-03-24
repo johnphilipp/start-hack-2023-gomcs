@@ -1,28 +1,7 @@
-import { useState } from 'react';
-import dayjs from 'dayjs';
-import { createStyles, UnstyledButton, Text, Paper, Group, rem } from '@mantine/core';
-import {
-    TbBike,
-    TbWalk,
-    TbTrain,
-    TbChevronDown,
-    TbChevronUp, TbCar, TbShip, TbBus
-} from "react-icons/tb";
-import {StatsSegmentsProps} from "~/components/DistanceStats";
+import { createStyles, Text, Paper, Group, rem } from '@mantine/core';
 import {IconType} from "react-icons";
 
 const useStyles = createStyles((theme) => ({
-    root: {
-        backgroundImage: `linear-gradient(-60deg, #69db7c} 0%, #37b24d 100%)`,
-        padding: theme.spacing.xl,
-        borderRadius: theme.radius.md,
-        display: 'flex',
-
-        [theme.fn.smallerThan('xs')]: {
-            flexDirection: 'column',
-        },
-    },
-
     icon: {
         marginLeft: 'auto',
         marginRight: 'auto',
@@ -136,7 +115,6 @@ export interface TransportProps {
 
 export function TransportStats({data}: TransportProps) {
     const { classes } = useStyles();
-    const [date, setDate] = useState(new Date(2021, 9, 24));
 
     const stats = data.map((stat) => (
         <Paper className={classes.stat} radius="md" shadow="md" p="xs" key={stat.label}>
@@ -154,27 +132,6 @@ export function TransportStats({data}: TransportProps) {
     ));
 
     return (
-        <div className={classes.root}>
-            <div className={classes.controls}>
-                <UnstyledButton
-                    className={classes.control}
-                    onClick={() => setDate((current) => dayjs(current).add(1, 'year').toDate())}
-                >
-                    <TbChevronUp size="1rem" className={classes.controlIcon} />
-                </UnstyledButton>
-
-                <div className={classes.date}>
-                    <Text className={classes.day}>{dayjs(date).format('YYYY')}</Text>
-                </div>
-
-                <UnstyledButton
-                    className={classes.control}
-                    onClick={() => setDate((current) => dayjs(current).subtract(1, 'year').toDate())}
-                >
-                    <TbChevronDown size="1rem" className={classes.controlIcon} />
-                </UnstyledButton>
-            </div>
-            <Group sx={{ flex: 1 }}>{stats}</Group>
-        </div>
+        <Group sx={{ flex: 1 }}>{stats}</Group>
     );
 }

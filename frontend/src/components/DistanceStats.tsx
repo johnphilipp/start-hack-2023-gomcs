@@ -36,6 +36,7 @@ const useStyles = createStyles((theme) => ({
 export interface StatsSegmentsProps {
     total: number;
     diff: number;
+    year: number;
     data: {
         label: string;
         count: number;
@@ -44,7 +45,7 @@ export interface StatsSegmentsProps {
     }[];
 }
 
-export function DistanceStats({total, diff, data}: StatsSegmentsProps) {
+export function DistanceStats({total, diff, data, year}: StatsSegmentsProps) {
     const {classes} = useStyles();
 
     const segments = data.map((segment) => ({
@@ -72,7 +73,7 @@ export function DistanceStats({total, diff, data}: StatsSegmentsProps) {
         <Paper withBorder p="md" radius="md">
             <Group align="flex-start" spacing="xs">
                 <Text fz="xl" fw={700}>
-                    Distance travelled in 2023
+                    Distance travelled in {year}
                 </Text>
             </Group>
             <Group position="apart">

@@ -3,6 +3,7 @@ import { Dialog } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import {FaLeaf} from "react-icons/fa";
 
 interface NavItem {
   name: string;
@@ -30,11 +31,7 @@ export default function Header(): JSX.Element {
         <div className="flex lg:flex-1">
           <Link href="/dashboard" className="-m-1.5 p-1.5">
             <span className="sr-only">Your Company</span>
-            <img
-              className="h-8 w-auto"
-              src="https://tailwindui.com/img/logos/mark.svg?color=white"
-              alt=""
-            />
+            <FaLeaf className="h-12 w-12 text-white"/>
           </Link>
         </div>
         <div className="flex lg:hidden">
@@ -93,11 +90,7 @@ export default function Header(): JSX.Element {
           <div className="flex items-center justify-between">
             <a href="#" className="-m-1.5 p-1.5">
               <span className="sr-only">Your Company</span>
-              <img
-                className="h-8 w-auto"
-                src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
-                alt=""
-              />
+              <FaLeaf className="h-12 w-12 text-white"/>
             </a>
             <button
               type="button"
