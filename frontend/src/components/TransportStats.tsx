@@ -10,7 +10,8 @@ const useStyles = createStyles((theme) => ({
     },
 
     stat: {
-        minWidth: rem(98),
+        minWidth: rem(115),
+        //maxWidth: rem()
         paddingTop: theme.spacing.xl,
         minHeight: rem(140),
         display: 'flex',
@@ -126,6 +127,9 @@ export function TransportStats({data}: TransportProps) {
                 </Text>
                 <Text fz="xs" className={classes.count}>
                     <span className={classes.value}>{stat.co2}kg CO<sub>2</sub></span>
+                </Text>
+                <Text fz="xs" className={classes.count}>
+                    <span className={classes.value}>{(stat.co2 / stat.distance).toFixed(2)} kg/km</span>
                 </Text>
             </div>
         </Paper>
