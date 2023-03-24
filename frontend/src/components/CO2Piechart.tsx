@@ -10,13 +10,7 @@ import {
     TbChevronUp, TbCar, TbShip, TbBus
 } from "react-icons/tb";
 import theme from "tailwindcss/defaultTheme";
-
-const data = [
-    {name: 'Walk', value: 400, icon: TbWalk},
-    {name: 'Bike', value: 300, icon: TbBike},
-    {name: 'Car', value: 300, icon: TbCar},
-    {name: 'Airplane', value: 200, icon: TbPlane},
-];
+import {IconType} from "react-icons";
 
 const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius: any; outerRadius: any; startAngle: any; endAngle: any; fill: any; payload: any; percent: any; value: any; }) => {
     const RADIAN = Math.PI / 180;
@@ -63,9 +57,22 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
     );
 };
 
-export default class CO2Piechart extends PureComponent {
-    static demoUrl = 'https://codesandbox.io/s/pie-chart-with-customized-active-shape-y93si';
+export interface CO2PiechartProps {
+    total: number;
+    data: {
+        name: string;
+        value: number;
+        icon: IconType;
+    }[];
+}
 
+export default class CO2Piechart extends PureComponent<CO2PiechartProps> {
+    constructor(props: CO2PiechartProps) {
+        super(props);
+        this.state = {
+           activeIndex: 0
+        };
+    }
     state = {
         activeIndex: 0,
     };
@@ -86,14 +93,14 @@ export default class CO2Piechart extends PureComponent {
                 </Group>
                 <Group align="flex-start">
                     <Text color="#868e96" fz="lg" fw={700}>
-                        Total 4000kg
+                        Total { this.props.total.toFixed(0) }kg
                     </Text>
                 </Group>
                 <PieChart width={400} height={300} >
                     <Pie
                         activeIndex={this.state.activeIndex}
                         activeShape={renderActiveShape}
-                        data={data}
+                        data={this.props.data}
                         cx="50%"
                         cy="50%"
                         innerRadius={60}

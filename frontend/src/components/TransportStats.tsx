@@ -8,6 +8,8 @@ import {
     TbChevronDown,
     TbChevronUp, TbCar, TbShip, TbBus
 } from "react-icons/tb";
+import {StatsSegmentsProps} from "~/components/DistanceStats";
+import {IconType} from "react-icons";
 
 const useStyles = createStyles((theme) => ({
     root: {
@@ -123,16 +125,16 @@ const useStyles = createStyles((theme) => ({
     },
 }));
 
-const data = [
-    { icon: TbWalk, label: 'Walking' },
-    { icon: TbBike, label: 'Bike' },
-    { icon: TbCar, label: 'Car'},
-    { icon: TbTrain, label: 'Train' },
-    { icon: TbBus, label: 'Bus'},
-    { icon: TbShip, label: 'Ferry'},
-];
+export interface TransportProps {
+    data: {
+        icon: IconType,
+        label: string,
+        distance: number
+        co2: number
+    }[];
+}
 
-export function TransportStats() {
+export function TransportStats({data}: TransportProps) {
     const { classes } = useStyles();
     const [date, setDate] = useState(new Date(2021, 9, 24));
 
@@ -142,10 +144,10 @@ export function TransportStats() {
             <div>
                 <Text className={classes.label}>{stat.label}</Text>
                 <Text fz="xs" className={classes.count}>
-                    <span className={classes.value}>{Math.floor(Math.random() * 6 + 4)}km</span>
+                    <span className={classes.value}>{stat.distance}km</span>
                 </Text>
                 <Text fz="xs" className={classes.count}>
-                    <span className={classes.value}>{Math.floor(Math.random() * 6 + 4)}kg CO2</span>
+                    <span className={classes.value}>{stat.co2}kg CO2</span>
                 </Text>
             </div>
         </Paper>

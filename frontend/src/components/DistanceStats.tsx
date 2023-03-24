@@ -72,13 +72,13 @@ export function DistanceStats({total, diff, data}: StatsSegmentsProps) {
         <Paper withBorder p="md" radius="md">
             <Group align="flex-start" spacing="xs">
                 <Text fz="xl" fw={700}>
-                    Kilometers travelled in 2023
+                    Distance travelled in 2023
                 </Text>
             </Group>
             <Group position="apart">
                 <Group align="flex-end" spacing="xs">
                     <Text fz="xl" fw={700}>
-                        {total}
+                        {total} km
                     </Text>
                     <Text c="#2f9e44" className={classes.diff} fz="sm" fw={700}>
                         <span>{diff}%</span>
