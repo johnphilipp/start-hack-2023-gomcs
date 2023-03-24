@@ -40,7 +40,7 @@ const Home: NextPage = () => {
 
           <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[2rem]">
             {" "}
-            /index
+            Welcome to Green Path!
           </h2>
 
           <div className="flex flex-col items-center justify-center gap-4">
