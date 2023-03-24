@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Spinner from "~/components/Spinner";
 import Head from "next/head";
 import { signIn, useSession } from "next-auth/react";
+import {Tutorial} from "~/components/Tutorial";
 
 const Home: NextPage = () => {
   const { data: sessionData, status } = useSession();
@@ -51,6 +52,7 @@ const Home: NextPage = () => {
             >
               Log in
             </button>
+            <Tutorial />
           </div>
         </div>
       </main>

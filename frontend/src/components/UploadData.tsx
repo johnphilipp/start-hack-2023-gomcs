@@ -7,6 +7,8 @@ import {FiUpload} from "react-icons/fi";
 import {FaFileArchive} from "react-icons/fa";
 import {set} from "zod";
 import Spinner from "~/components/Spinner";
+import {Text} from "@mantine/core";
+import {Tutorial} from "~/components/Tutorial";
 
 const UploadData: React.FC = () => {
     const {data: sessionData} = useSession();
@@ -99,6 +101,7 @@ const UploadData: React.FC = () => {
             {success && (
                 <p className="text-green-500">Data uploaded successfully!</p> // conditionally render success message
             )}
+            <Tutorial />
         </div>
     );
 };
