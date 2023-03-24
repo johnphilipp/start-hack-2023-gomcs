@@ -8,7 +8,8 @@ import CO2Piechart, {CO2PiechartProps} from "~/components/CO2Piechart";
 import {TbBike, TbBus, TbCar, TbPlane, TbQuestionMark, TbShip, TbTrain, TbWalk} from "react-icons/tb";
 import {IconType} from "react-icons";
 import {YearButton} from "~/components/YearButton";
-import {createStyles} from "@mantine/core";
+import {Button, createStyles, Paper, Text} from "@mantine/core";
+import theme from "tailwindcss/defaultTheme";
 
 enum activity_type {
     IN_TRAIN= "IN_TRAIN", WALKING = "WALKING", IN_FERRY = "IN_FERRY", IN_PASSENGER_VEHICLE = "IN_PASSENGER_VEHICLE", IN_BUS = "IN_BUS", FLYING = "FLYING", ON_BICYCLE = "ON_BICYCLE"
@@ -80,7 +81,6 @@ const useStyles = createStyles((theme) => ({
 const Dashboard = () => {
     const { classes } = useStyles();
     const {data: sessionData, status} = useSession();
-
     const [selectedYear, setSelectedYear] = useState<number>(2023);
     const [co2Data, setCo2Data] = useState<DataPerYear[]>([]);
     const [distanceData, setDistanceData] = useState<StatsSegmentsProps>({
@@ -88,11 +88,13 @@ const Dashboard = () => {
     });
     const [emissionData, setEmissionData] = useState<CO2PiechartProps>({
         data: [],
-        total: 0
+        total: 0,
+        year: 2023
     });
     const [transportData, setTransportData] = useState<TransportProps>({
         data: [],
     });
+    const [recommendation, setRecommendation] = useState<string>();
 
     if (status === "loading") {
         return (
@@ -160,6 +162,7 @@ const Dashboard = () => {
     function getNewEmissionData(totalEmission: number, dataOfCurrentYear: DataPerYear): CO2PiechartProps {
         return {
             total: totalEmission,
+            year: selectedYear,
             data: dataOfCurrentYear?.activities.map(activity => ({
                 value: !!activity?.co2 ? parseFloat((activity?.co2)?.toFixed(0)) : 0,
                 icon: getIconForActivity(activity),
@@ -177,6 +180,18 @@ const Dashboard = () => {
                 distance: !!activity?.distance ? parseFloat((activity?.distance / 1000)?.toFixed(0)) : 0,
             })).sort((a, b) => b.co2 - a.co2)
         };
+    }
+
+    const fetchRecommendation = async () => {
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/gpt/${sessionData?.user.id}`
+        );
+        console.log({response});
+        if (response.status !== 200) {
+            <>No Recommendation</>
+            return;
+        }
+        return response.json();
     }
 
     useEffect(() => {
@@ -254,22 +269,25 @@ const Dashboard = () => {
         setSelectedYear(year)
     }
 
+    function handleGetRecommendation() {
+        fetchRecommendation().then(recommendation => setRecommendation(recommendation))
+    }
+
     return (
         <>
             <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-                <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-                    Green Path
-                </h1>
-
-                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[2rem]">
-                    {" "}
-                </h2>
-                <div className={classes.root}>
+                <div className="flex flex-row gap-4 justify-center items-center flex-wrap">
+                    <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
+                        Green Path
+                    </h1>
+                    <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[2rem]">
+                        {" "}
+                    </h2>
                     <YearButton currentYear={selectedYear} onChangeYearEvent={handleYearEvent}/>
-                    <TransportStats data={transportData.data}/>
                 </div>
+                <TransportStats data={transportData.data}/>
                 <div className="flex flex-row flex-wrap items-center items-stretch justify-center gap-4">
-                    <CO2Piechart total={emissionData.total}  data={emissionData.data}/>
+                    <CO2Piechart total={emissionData.total}  data={emissionData.data} year={selectedYear} />
                     <DistanceStats
                             total={distanceData.total}
                             diff={distanceData.diff}
@@ -277,6 +295,23 @@ const Dashboard = () => {
                             year={selectedYear}
                         />
                 </div>
+                <button
+                    className="-m-2.5 inline-flex items-center justify-center rounded-md bg-white p-2.5 text-gray-900 hover:bg-gray-300 font-bold p-2"
+                    onClick={handleGetRecommendation}
+                >
+                    Get GPT4 recommendation to reduce carbon footprint
+                </button>
+                {
+                   recommendation &&
+                    <Paper radius="md" shadow="md" p="lg" className="max-w-xl">
+                        <Text fz="xl" fw={700} mb={10}>
+                            Recommendation to reduce your carbon footprint
+                        </Text>
+                        <Text fz="xs">
+                            {recommendation}
+                        </Text>
+                    </Paper>
+                }
             </div>
         </>
     );

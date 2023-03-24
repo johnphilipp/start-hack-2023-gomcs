@@ -125,7 +125,7 @@ export function TransportStats({data}: TransportProps) {
                     <span className={classes.value}>{stat.distance}km</span>
                 </Text>
                 <Text fz="xs" className={classes.count}>
-                    <span className={classes.value}>{stat.co2}kg CO2</span>
+                    <span className={classes.value}>{stat.co2}kg CO<sub>2</sub></span>
                 </Text>
             </div>
         </Paper>

@@ -58,6 +58,7 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
 };
 
 export interface CO2PiechartProps {
+    year: number;
     total: number;
     data: {
         name: string;
@@ -88,7 +89,7 @@ export default class CO2Piechart extends PureComponent<CO2PiechartProps> {
             <Paper withBorder p="md" radius="md">
                 <Group align="flex-start" spacing="xs">
                     <Text fz="xl" fw={700}>
-                        CO2 Emissions in 2023
+                        CO<sub>2</sub> Emissions in {this.props.year}
                     </Text>
                 </Group>
                 <Group align="flex-start">
