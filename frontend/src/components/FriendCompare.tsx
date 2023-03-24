@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from "react";
 import {useSession} from "next-auth/react";
 import {ComparisonTable} from "~/components/ComparisonTable";
-import {createStyles, Paper, rem, Text} from "@mantine/core";
+import {Input, Paper, Text} from "@mantine/core";
 
 
 export default function FriendCompare() {
@@ -66,11 +66,10 @@ export default function FriendCompare() {
                 </label>
                 <br/>
                 <div className="">
-                    <input
+                    <Input
                         id="friend-name"
                         value={friendId}
                         onChange={(e) => setFriendId(e.target.value)}
-                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:pl-4 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                         placeholder="userId of your friend goes here :)"
                     />
                 </div>
@@ -91,12 +90,12 @@ export default function FriendCompare() {
                     {!!userData && <ComparisonTable data={userData}/>}
                 </Paper>
                 {!!comparisonData &&
-                <Paper radius="md" shadow="md" p="lg" className="max-w-fit">
-                    <Text fz="xl" fw={700} mb={10}>
-                        Your friend
-                    </Text>
-                    <ComparisonTable data={comparisonData}/>
-                </Paper>
+                    <Paper radius="md" shadow="md" p="lg" className="max-w-fit">
+                        <Text fz="xl" fw={700} mb={10}>
+                            Your friend
+                        </Text>
+                        <ComparisonTable data={comparisonData}/>
+                    </Paper>
                 }
             </div>
         </div>

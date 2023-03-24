@@ -1,5 +1,5 @@
 import {createStyles, Progress, Box, Text, Group, Paper, SimpleGrid, rem, px} from '@mantine/core';
-import {TbArrowDown, TbArrowUp, TbDeviceAnalytics} from 'react-icons/tb';
+import {TbArrowDown, TbDeviceAnalytics} from 'react-icons/tb';
 import React from "react";
 
 const useStyles = createStyles((theme) => ({

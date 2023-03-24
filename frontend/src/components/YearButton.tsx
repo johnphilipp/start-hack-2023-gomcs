@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react';
 import dayjs from 'dayjs';
-import { createStyles, UnstyledButton, Text, Paper, Group, rem } from '@mantine/core';
+import {createStyles, UnstyledButton, Text, Paper, Group, rem} from '@mantine/core';
 import {
     TbChevronDown,
     TbChevronUp
@@ -89,7 +89,7 @@ export interface YearButtonProps {
 }
 
 export function YearButton(props: YearButtonProps) {
-    const { classes } = useStyles();
+    const {classes} = useStyles();
     const [date, setDate] = useState(new Date(2023, 9, 24));
 
     function addYear() {
@@ -113,7 +113,7 @@ export function YearButton(props: YearButtonProps) {
                     className={classes.control}
                     onClick={addYear}
                 >
-                    <TbChevronUp size="1rem" className={classes.controlIcon} />
+                    <TbChevronUp size="1rem" className={classes.controlIcon}/>
                 </UnstyledButton>
 
                 <div className={classes.date}>
@@ -124,7 +124,7 @@ export function YearButton(props: YearButtonProps) {
                     className={classes.control}
                     onClick={subtractYear}
                 >
-                    <TbChevronDown size="1rem" className={classes.controlIcon} />
+                    <TbChevronDown size="1rem" className={classes.controlIcon}/>
                 </UnstyledButton>
             </div>
         </div>

@@ -3,12 +3,11 @@ import { useRouter } from "next/router";
 import Spinner from "~/components/Spinner";
 import { NextPage } from "next";
 import Header from "~/components/Header";
-import Dashboard from "~/components/Dashboard";
 import UploadData from "~/components/UploadData";
+import {useState} from "react";
 
 const UploadDataPage: NextPage = () => {
   const { data: sessionData, status } = useSession();
-
   const router = useRouter();
 
   if (status === "loading") {

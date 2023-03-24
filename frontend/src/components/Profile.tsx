@@ -1,4 +1,4 @@
-import { createStyles, Text, Card, RingProgress, Group, rem } from '@mantine/core';
+import {createStyles, Text, Card, RingProgress, Group, rem} from '@mantine/core';
 
 const useStyles = createStyles((theme) => ({
     card: {
@@ -48,8 +48,8 @@ interface StatsRingCardProps {
     }[];
 }
 
-export function Profile({ title, completed, total, stats }: StatsRingCardProps) {
-    const { classes, theme } = useStyles();
+export function Profile({title, completed, total, stats}: StatsRingCardProps) {
+    const {classes, theme} = useStyles();
     const items = stats.map((stat) => (
         <div key={stat.label}>
             <Text className={classes.label}>{stat.value}</Text>
@@ -82,7 +82,7 @@ export function Profile({ title, completed, total, stats }: StatsRingCardProps) 
                         roundCaps
                         thickness={6}
                         size={150}
-                        sections={[{ value: (completed / total) * 100, color: theme.primaryColor }]}
+                        sections={[{value: (completed / total) * 100, color: theme.primaryColor}]}
                         label={
                             <div>
                                 <Text ta="center" fz="lg" className={classes.label}>

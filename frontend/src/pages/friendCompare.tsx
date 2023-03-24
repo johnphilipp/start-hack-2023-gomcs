@@ -3,7 +3,6 @@ import { useRouter } from "next/router";
 import Spinner from "~/components/Spinner";
 import { NextPage } from "next";
 import Header from "~/components/Header";
-import Dashboard from "~/components/Dashboard";
 import FriendCompare from "~/components/FriendCompare";
 
 const FriendComparePage: NextPage = () => {

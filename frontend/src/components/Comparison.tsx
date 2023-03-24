@@ -1,7 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSession } from "next-auth/react";
 import Spinner from "./Spinner";
-import { TransportStats } from "./TransportStats";
 
 type Co2Data = {
   year: number;
@@ -12,7 +11,6 @@ type Co2Data = {
 
 const Comparison: React.FC = () => {
   const { data: sessionData, status } = useSession();
-  const [co2Data, setCo2Data] = useState<Co2Data[]>([]);
 
   if (status === "loading") {
     return (

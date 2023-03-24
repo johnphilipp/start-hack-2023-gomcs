@@ -1,15 +1,6 @@
 import React, {PureComponent} from 'react';
-import {PieChart, Pie, Sector, ResponsiveContainer} from 'recharts';
-import {Group, Paper, rem, Text} from "@mantine/core";
-import {TbArrowDown, TbPlane} from "react-icons/tb";
-import {
-    TbBike,
-    TbWalk,
-    TbTrain,
-    TbChevronDown,
-    TbChevronUp, TbCar, TbShip, TbBus
-} from "react-icons/tb";
-import theme from "tailwindcss/defaultTheme";
+import {PieChart, Pie, Sector} from 'recharts';
+import {Group, Paper, Text} from "@mantine/core";
 import {IconType} from "react-icons";
 
 const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius: any; outerRadius: any; startAngle: any; endAngle: any; fill: any; payload: any; percent: any; value: any; }) => {
@@ -27,7 +18,7 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
 
     return (
         <g>
-            <payload.icon color={'#2f9e44'} x={cx - 32} y={cy - 32} size={64} />
+            <payload.icon color={'#2f9e44'} x={cx - 32} y={cy - 32} size={64}/>
             <Sector
                 cx={cx}
                 cy={cy}
@@ -50,7 +41,7 @@ const renderActiveShape = (props: { cx: any; cy: any; midAngle: any; innerRadius
             <circle cx={ex} cy={ey} r={2} fill={fill} stroke="none"/>
             <text z={1} x={ex + (cos >= 0 ? 1 : -1) * 6} y={ey} textAnchor={textAnchor}
                   fill="#333">{`${value}kg`}</text>
-{/*            <text z={1} x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
+            {/*            <text z={1} x={ex + (cos >= 0 ? 1 : -1) * 12} y={ey} dy={18} textAnchor={textAnchor} fill="#999">
                 {`(Rate ${(percent * 100).toFixed(2)}%)`}
             </text>*/}
         </g>
@@ -71,9 +62,10 @@ export default class CO2Piechart extends PureComponent<CO2PiechartProps> {
     constructor(props: CO2PiechartProps) {
         super(props);
         this.state = {
-           activeIndex: 0
+            activeIndex: 0
         };
     }
+
     state = {
         activeIndex: 0,
     };
@@ -94,10 +86,10 @@ export default class CO2Piechart extends PureComponent<CO2PiechartProps> {
                 </Group>
                 <Group align="flex-start">
                     <Text color="#868e96" fz="lg" fw={700}>
-                        Total { this.props.total.toFixed(0) }kg
+                        Total {this.props.total.toFixed(0)}kg
                     </Text>
                 </Group>
-                <PieChart width={400} height={300} >
+                <PieChart width={400} height={300}>
                     <Pie
                         activeIndex={this.state.activeIndex}
                         activeShape={renderActiveShape}

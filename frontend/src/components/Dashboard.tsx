@@ -8,14 +8,20 @@ import CO2Piechart, {CO2PiechartProps} from "~/components/CO2Piechart";
 import {TbBike, TbBus, TbCar, TbPlane, TbQuestionMark, TbShip, TbTrain, TbWalk} from "react-icons/tb";
 import {IconType} from "react-icons";
 import {YearButton} from "~/components/YearButton";
-import {Button, createStyles, Paper, Text} from "@mantine/core";
-import theme from "tailwindcss/defaultTheme";
+import {createStyles, Paper, Text} from "@mantine/core";
+import {FaLeaf} from "react-icons/fa";
 
 enum activity_type {
-    IN_TRAIN= "IN_TRAIN", WALKING = "WALKING", IN_FERRY = "IN_FERRY", IN_PASSENGER_VEHICLE = "IN_PASSENGER_VEHICLE", IN_BUS = "IN_BUS", FLYING = "FLYING", ON_BICYCLE = "ON_BICYCLE"
+    IN_TRAIN = "IN_TRAIN",
+    WALKING = "WALKING",
+    IN_FERRY = "IN_FERRY",
+    IN_PASSENGER_VEHICLE = "IN_PASSENGER_VEHICLE",
+    IN_BUS = "IN_BUS",
+    FLYING = "FLYING",
+    ON_BICYCLE = "ON_BICYCLE"
 }
 
-const activityToStyleMap = new Map<activity_type, {label: string, color: string, icon: IconType}>([
+const activityToStyleMap = new Map<activity_type, { label: string, color: string, icon: IconType }>([
     [activity_type.IN_TRAIN, {
         label: "Train",
         color: "#f08c00",
@@ -79,8 +85,9 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const Dashboard = () => {
-    const { classes } = useStyles();
+    const {classes} = useStyles();
     const {data: sessionData, status} = useSession();
+    const [recommendationLoading, setRecommendationLoading] = useState<boolean>(false);
     const [selectedYear, setSelectedYear] = useState<number>(2023);
     const [co2Data, setCo2Data] = useState<DataPerYear[]>([]);
     const [distanceData, setDistanceData] = useState<StatsSegmentsProps>({
@@ -116,16 +123,16 @@ const Dashboard = () => {
     function getColorForActivity(activity: Activity): string {
         let color = '#C1C2C5'
         // @ts-ignore
-        if(!!activity?.activity_type && activityToStyleMap.has(activity.activity_type)) {
+        if (!!activity?.activity_type && activityToStyleMap.has(activity.activity_type)) {
             // @ts-ignore
-            color =  activityToStyleMap.get(activity.activity_type).color;
+            color = activityToStyleMap.get(activity.activity_type).color;
         }
         return color;
     }
 
     function getLabelForActivity(activity: Activity): string {
         let label = 'Unknown'
-        if(!!activity?.activity_type && activityToStyleMap.has(activity?.activity_type)) {
+        if (!!activity?.activity_type && activityToStyleMap.has(activity?.activity_type)) {
             // @ts-ignore
             label = activityToStyleMap.get(activity.activity_type.toString())?.label;
         }
@@ -152,7 +159,7 @@ const Dashboard = () => {
 
     function getIconForActivity(activity: Activity) {
         let icon = TbQuestionMark
-        if(!!activity?.activity_type && activityToStyleMap.has(activity?.activity_type)) {
+        if (!!activity?.activity_type && activityToStyleMap.has(activity?.activity_type)) {
             // @ts-ignore
             icon = activityToStyleMap.get(activity.activity_type.toString())?.icon;
         }
@@ -210,7 +217,7 @@ const Dashboard = () => {
                 const data = await response.json();
                 setCo2Data(data); // --> DATA NOW SAVED IN co2Data
                 const yearIdx = data.findIndex((dataPerYear: DataPerYear) => dataPerYear.year == selectedYear)
-                if(yearIdx !== -1) {
+                if (yearIdx !== -1) {
                     const dataOfCurrentYear: DataPerYear = data.at(yearIdx);
                     const totalDistance = getTotalDistance(dataOfCurrentYear);
                     const totalEmission = getTotalEmission(dataOfCurrentYear);
@@ -270,7 +277,11 @@ const Dashboard = () => {
     }
 
     function handleGetRecommendation() {
-        fetchRecommendation().then(recommendation => setRecommendation(recommendation))
+        setRecommendationLoading(true);
+        fetchRecommendation().then(recommendation => {
+            setRecommendation(recommendation)
+            setRecommendationLoading(false)
+        })
     }
 
     return (
@@ -287,27 +298,32 @@ const Dashboard = () => {
                 </div>
                 <TransportStats data={transportData.data}/>
                 <div className="flex flex-row flex-wrap items-center items-stretch justify-center gap-4">
-                    <CO2Piechart total={emissionData.total}  data={emissionData.data} year={selectedYear} />
+                    <CO2Piechart total={emissionData.total} data={emissionData.data} year={selectedYear}/>
                     <DistanceStats
-                            total={distanceData.total}
-                            diff={distanceData.diff}
-                            data={distanceData.data}
-                            year={selectedYear}
-                        />
+                        total={distanceData.total}
+                        diff={distanceData.diff}
+                        data={distanceData.data}
+                        year={selectedYear}
+                    />
                 </div>
                 <button
-                    className="-m-2.5 inline-flex items-center justify-center rounded-md bg-white p-2.5 text-gray-900 hover:bg-gray-300 font-bold p-2"
+                    className="-m-5 inline-flex items-center justify-center rounded-lg bg-white p-2.5 text-gray-900 hover:bg-gray-300 font-bold p-2"
                     onClick={handleGetRecommendation}
                 >
-                    Get GPT4 recommendation to reduce carbon footprint
+                    Get GPT4 recommendation
                 </button>
                 {
-                   recommendation &&
-                    <Paper radius="md" shadow="md" p="lg" className="max-w-xl">
+                   recommendationLoading && <Spinner/>
+                }
+                {
+                    recommendation && !recommendationLoading && <Paper radius="md" shadow="md" p="lg" className="max-w-xl">
+                        <Text mb={10}>
+                            <FaLeaf size={32}/>
+                        </Text>
                         <Text fz="xl" fw={700} mb={10}>
                             Recommendation to reduce your carbon footprint
                         </Text>
-                        <Text fz="xs">
+                        <Text fz="sm">
                             {recommendation}
                         </Text>
                     </Paper>

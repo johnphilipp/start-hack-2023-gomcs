@@ -1,4 +1,4 @@
-import { createStyles, Text, Paper, Group, rem } from '@mantine/core';
+import {createStyles, Text, Paper, Group, rem} from '@mantine/core';
 import {IconType} from "react-icons";
 
 const useStyles = createStyles((theme) => ({
@@ -114,11 +114,11 @@ export interface TransportProps {
 }
 
 export function TransportStats({data}: TransportProps) {
-    const { classes } = useStyles();
+    const {classes} = useStyles();
 
     const stats = data.map((stat) => (
         <Paper className={classes.stat} radius="md" shadow="md" p="xs" key={stat.label}>
-            <stat.icon size={32} className={classes.icon} />
+            <stat.icon size={32} className={classes.icon}/>
             <div>
                 <Text className={classes.label}>{stat.label}</Text>
                 <Text fz="xs" className={classes.count}>
@@ -132,6 +132,6 @@ export function TransportStats({data}: TransportProps) {
     ));
 
     return (
-        <Group sx={{ flex: 1 }}>{stats}</Group>
+        <Group sx={{flex: 1}}>{stats}</Group>
     );
 }
