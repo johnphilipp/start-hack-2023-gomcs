@@ -3,9 +3,9 @@ import { useRouter } from "next/router";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 import { useDropzone, FileWithPath } from "react-dropzone";
-import { BsFiletypeJson } from "react-icons/bs";
+import {BsFiletypeDoc, BsFiletypeJson} from "react-icons/bs";
 import { FiUpload } from "react-icons/fi";
-
+import { FaFileArchive } from "react-icons/fa";
 const UploadData: React.FC = () => {
   const { data: sessionData } = useSession();
 
@@ -61,7 +61,7 @@ const UploadData: React.FC = () => {
       >
         <div className="flex max-w-lg justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
           <div className="space-y-1 text-center">
-            <BsFiletypeJson className="mx-auto mb-4 h-16 w-12 text-gray-400" />
+            <FaFileArchive className="mx-auto mb-4 h-16 w-12 text-gray-400" />
             <div className="flex text-sm text-gray-600">
               <p className="pl-2">or drag and drop</p>
             </div>

@@ -1,6 +1,11 @@
 import io
 import re
 import zipfile
+
+import time
+
+import requests
+from cachetools import cached, TTLCache
 from fastapi import FastAPI, Request, UploadFile, File
 from fastapi.responses import JSONResponse
 from pymongo import MongoClient
@@ -9,6 +14,7 @@ import json
 import mongo_queries
 import co2_api
 from fastapi.middleware.cors import CORSMiddleware
+import openai
 
 app = FastAPI()
 
@@ -57,59 +63,82 @@ async def aggregate_by_activity_type(userid: str, start_time=None, end_time=None
         return JSONResponse(status_code=500, content=None)
 
 
+@cached(cache=TTLCache(maxsize=18096, ttl=600))
+def get_activities(userid: str):
+    distances_by_activity_type = mongo_queries.get_distance_by_year(userid)
+
+    if len(distances_by_activity_type) == 0:
+        return JSONResponse(status_code=204, content=None)
+
+    for year in distances_by_activity_type:
+        current_year = distances_by_activity_type[year]
+        if "IN_PASSENGER_VEHICLE" in current_year:
+            car = current_year["IN_PASSENGER_VEHICLE"]["distance"]
+
+            if "IN_VEHICLE" in current_year:
+                car = car + current_year["IN_VEHICLE"]["distance"]
+
+            total = co2_api.estimate_car_emissions(car)
+
+            if "MOTORCYCLING" in current_year:
+                total = total + co2_api.estimate_motorcycle_emissions(current_year["MOTORCYCLING"]["distance"])
+
+            current_year["IN_PASSENGER_VEHICLE"]["co2"] = total
+
+        if "IN_TRAIN" in current_year:
+            total = current_year["IN_TRAIN"]["distance"]
+            if "IN_SUBWAY" in current_year:
+                total = total + current_year["IN_SUBWAY"]["distance"]
+            if "IN_TRAM" in current_year:
+                total = total + current_year["IN_TRAM"]["distance"]
+
+            current_year["IN_TRAIN"]["co2"] = co2_api.estimate_train_emissions(total)
+
+        if "IN_FERRY" in current_year:
+            current_year["IN_FERRY"]["co2"] = co2_api.estimate_ferry_emissions(
+                current_year["IN_FERRY"]["distance"])
+
+        if "FLYING" in current_year:
+            current_year["FLYING"]["co2"] = co2_api.estimate_plane_emissions(current_year["FLYING"]["distance"])
+
+        if "WALKING" in current_year:
+            current_year["WALKING"]["co2"] = 0
+
+        if "ON_BICYCLE" in current_year:
+            current_year["ON_BICYCLE"]["co2"] = 0
+
+        if "IN_BUS" in current_year:
+            current_year["IN_BUS"]["co2"] = 0
+
+        used_fields = ["IN_PASSENGER_VEHICLE", "IN_TRAIN", "IN_FERRY", "FLYING", "WALKING", "ON_BICYCLE", "IN_BUS"]
+        for i in current_year.copy():
+            if i not in used_fields:
+                del current_year[i]
+        distances_by_activity_type[year] = current_year
+    timer = time.time()
+    result = []
+    for year, activities in distances_by_activity_type.items():
+        year_doc = {"year": year}
+
+        activity_list = []
+        for activity_type, values in activities.items():
+            item = {
+                "activity_type": activity_type,
+                "distance": values["distance"],
+                "co2": values["co2"]
+            }
+            activity_list.append(item)
+        year_doc["activities"] = activity_list
+        result.append(year_doc)
+    print(time.time() - timer)
+    return result
+
+
 @app.get("/stats/all/{userid}")
 async def aggregate_by_activity_type(userid: str) -> JSONResponse:
     try:
-        distances_by_activity_type = mongo_queries.get_distance_by_year(userid)
-
-        if len(distances_by_activity_type) == 0:
-            return JSONResponse(status_code=204, content=None)
-
-        for year in distances_by_activity_type:
-            current_year = distances_by_activity_type[year]
-            if "IN_PASSENGER_VEHICLE" in current_year:
-                car = current_year["IN_PASSENGER_VEHICLE"]["distance"]
-
-                if "IN_VEHICLE" in current_year:
-                    car = car + current_year["IN_VEHICLE"]["distance"]
-
-                total = co2_api.estimate_car_emissions(car)
-
-                if "MOTORCYCLING" in current_year:
-                    total = total + co2_api.estimate_motorcycle_emissions(current_year["MOTORCYCLING"]["distance"])
-
-                current_year["IN_PASSENGER_VEHICLE"]["co2"] = total
-
-            if "IN_TRAIN" in current_year:
-                total = current_year["IN_TRAIN"]["distance"]
-                total = total + current_year["IN_SUBWAY"]["distance"]
-                total = total + current_year["IN_TRAM"]["distance"]
-
-                current_year["IN_TRAIN"]["co2"] = co2_api.estimate_train_emissions(total)
-
-            if "IN_FERRY" in current_year:
-                current_year["IN_FERRY"]["co2"] = co2_api.estimate_ferry_emissions(
-                    current_year["IN_FERRY"]["distance"])
-
-            if "FLYING" in current_year:
-                current_year["FLYING"]["co2"] = co2_api.estimate_plane_emissions(current_year["FLYING"]["distance"])
-
-            if "WALKING" in current_year:
-                current_year["WALKING"]["co2"] = 0
-
-            if "ON_BICYCLE" in current_year:
-                current_year["ON_BICYCLE"]["co2"] = 0
-
-            if "IN_BUS" in current_year:
-                current_year["IN_BUS"]["co2"] = 0
-
-            used_fields = ["IN_PASSENGER_VEHICLE", "IN_TRAIN", "IN_FERRY", "FLYING", "WALKING", "ON_BICYCLE", "IN_BUS"]
-            for i in current_year.copy():
-                if i not in used_fields:
-                    del current_year[i]
-            distances_by_activity_type[year] = current_year
-
-        return JSONResponse(content=distances_by_activity_type)
+        result = get_activities(userid)
+        return JSONResponse(content=result)
     except PyMongoError:
         return JSONResponse(status_code=500, content=None)
 
@@ -130,7 +159,6 @@ async def aggregate_by_activity_type(userid: str) -> JSONResponse:
 @app.delete("/{userid}")
 async def delete_all_data(userid: str) -> JSONResponse:
     mongo_queries.delete_data(userid)
-
     return JSONResponse(content={"message": "Data deleted"})
 
 
@@ -199,6 +227,42 @@ async def add_timeline(request: Request) -> JSONResponse:
         return JSONResponse(status_code=400, content="Invalid JSON format!")
     except PyMongoError:
         return JSONResponse(status_code=500, content="Failed to add timeline!")
+
+
+@app.get("/gpt/{userid}")
+async def query_the_oracle(userid: str) -> JSONResponse:
+    result = get_activities(userid)
+
+    gpt_query = "I will provide you now with my distace travelled for each transportation type for each year and " \
+                "provide the co2 emissions for each transportation type:"
+
+    for i in result:
+        gpt_query += f"Year: {i['year']} \n"
+        for j in i['activities']:
+            gpt_query += f" transportation: {j['activity_type']} distance: {j['distance']} emission {j['co2']} kg co2 \n"
+
+    gpt_query += "Give me feedback for my carbon footprint over the provided time and how i can improve it."
+
+    openai.api_key = "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"
+    openai.organization = "org-L3fQsKkOZ6wNTOogCpUpvrNZ"
+    url = 'https://api.openai.com/v1/chat/completions'
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'Bearer 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'
+    }
+
+    # Set the request data as a JSON object
+    data = {
+        "model": "gpt-3.5-turbo",
+        "messages": [{"role": "user", "content": gpt_query}],
+    }
+
+    # Send a POST request to the API endpoint
+    response = requests.post(url, headers=headers, data=json.dumps(data))
+    response_data = response.json()
+    print(response_data)
+
+    return response_data['choices'][0]['message']['content']
 
 
 @app.get("/")
