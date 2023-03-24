@@ -22,6 +22,8 @@ def estimate_emissions(distance: int, activity_type: str):
 
     response = requests.post(climatiq_url, headers=headers, json=data)
     json_response = response.json()
+
+    print(json_response)
     if "emission_factor" in json_response:
         del json_response["emission_factor"]
 

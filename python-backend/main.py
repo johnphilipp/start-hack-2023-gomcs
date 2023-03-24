@@ -67,9 +67,6 @@ async def aggregate_by_activity_type(userid: str, start_time=None, end_time=None
 def get_activities(userid: str):
     distances_by_activity_type = mongo_queries.get_distance_by_year(userid)
 
-    if len(distances_by_activity_type) == 0:
-        return JSONResponse(status_code=204, content=None)
-
     for year in distances_by_activity_type:
         current_year = distances_by_activity_type[year]
         if "IN_PASSENGER_VEHICLE" in current_year:
@@ -131,14 +128,17 @@ def get_activities(userid: str):
         year_doc["activities"] = activity_list
         result.append(year_doc)
     print(time.time() - timer)
+
     return result
 
 
 @app.get("/stats/all/{userid}")
 async def aggregate_by_activity_type(userid: str) -> JSONResponse:
     try:
-        result = get_activities(userid)
-        return JSONResponse(content=result)
+        res = get_activities(userid)
+        if len(res) == 0:
+            return JSONResponse(status_code=204, content=None)
+        return JSONResponse(content=res)
     except PyMongoError:
         return JSONResponse(status_code=500, content=None)
 
